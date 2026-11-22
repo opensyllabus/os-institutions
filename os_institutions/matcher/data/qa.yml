@@ -4,7 +4,7 @@ source_url:
 email:
 school_name:
 institution: Alamo Colleges
-reason: 
+reason:
   - aggregation
   - 2.7
 explain: All Alamo Colleges are canonicalized to Alamo Colleges
@@ -17,36 +17,36 @@ institution: Northeast Lakeview College
 reason:
   - unblacklisted
   - 2.7
-explain: Northeast Lakeview College was unblacklisted, so its exact URL now matches the campus instead of Alamo Colleges.
+explain: Northeast Lakeview College is not blacklisted, so its exact URL matches the campus instead of Alamo Colleges.
 ---
 url: https://www.umgc.edu/
 source_url:
 email:
 school_name:
 institution: University of Maryland Global Campus
-reason: 
+reason:
   - name change
   - 2.7
-explain: University of Maryland University College is now University of Maryland Global Campus. This became apparent with the 2.7.
+explain: University of Maryland University College was renamed University of Maryland Global Campus; the current name is expected.
 ---
 url: https://www.liberty.edu/
 source_url:
 email:
 school_name:
 institution: Liberty University
-reason: 
+reason:
   - 2.7
-explain: Liberty University had a sharp decrease in counts for 2.7 build.
+explain: The main Liberty University domain resolves to Liberty University.
 ---
 url: https://www.ua.edu/
 source_url:
 email:
 school_name:
 institution: University of Alabama
-reason: 
+reason:
   - name change
   - 2.7
-explain: The updated version of Grid has University of Alabama as the correct name.
+explain: The expected institution name is University of Alabama.
 ---
 url: https://www.agh.edu.pl/
 source_url:
@@ -55,7 +55,7 @@ school_name:
 institution: AGH University of Krakow
 reason:
   - 2.7
-explain: Sharp increase in counts with 2.7 build. It could be due to new syllabi.
+explain: The main AGH domain resolves to AGH University of Krakow.
 ---
 url: https://www.usq.edu.au/
 source_url:
@@ -64,7 +64,7 @@ school_name:
 institution: University of Southern Queensland
 reason:
   - 2.7
-explain: Sharp decrease in counts with 2.7 build.
+explain: The main USQ domain resolves to University of Southern Queensland.
 ---
 url: https://www.radford.edu/content/csat/home/itec/programs/cybersecurity.html
 source_url:
@@ -75,7 +75,7 @@ reason:
   - 2.5
   - path prefix
   - master validation
-explain: Jefferson College of Health Sciences is part of Radford University, but it shouldn't be priortized over Radford. https://www.radford.edu/content/ruc/home/history/jchs-history.html
+explain: Jefferson College of Health Sciences is part of Radford University, but it shouldn't be prioritized over Radford. https://www.radford.edu/content/ruc/home/history/jchs-history.html
 ---
 url: https://sites.google.com/a/g.clemson.edu/cpsc-8810/
 source_url:
@@ -119,7 +119,7 @@ reason:
   - 2.5
   - master validation
   - cuny.edu
-explain: Since most cuny.edu URL has subdomain length of more than 1, it would default to City University of New York.
+explain: Since most cuny.edu URLs have a subdomain length of more than 1, they would default to City University of New York.
 ---
 url: http://www.harvard.edu
 source_url:
@@ -128,7 +128,7 @@ school_name:
 institution: Harvard University
 reason:
   - test_matcher.py
-explain: The unit test from tests/matcher/test_match.py
+explain: Basic URL match; mirrors a unit test in tests/matcher/test_match.py.
 ---
 url: http://www.example.com
 source_url:
@@ -137,7 +137,7 @@ school_name:
 institution:
 reason:
   - test_matcher.py
-explain: no_match_cases.yml
+explain: A URL on the example.com domain should not match any institution.
 ---
 url:
 source_url: http://www.example.com
@@ -146,7 +146,7 @@ school_name:
 institution:
 reason:
   - test_matcher.py
-explain: no_match_cases.yml
+explain: A source URL on the example.com domain should not match any institution.
 ---
 url:
 source_url:
@@ -155,7 +155,7 @@ school_name:
 institution:
 reason:
   - test_matcher.py
-explain: no_match_cases.yml
+explain: An email on the example.com domain should not match any institution.
 ---
 url:
 source_url:
@@ -164,7 +164,7 @@ school_name:
 institution: Harvard University
 reason:
   - test_matcher.py
-explain: no_match_cases.yml. Modified because matcher only gets a single email.
+explain: An email on the harvard.edu domain matches Harvard University. The matcher only gets a single email.
 ---
 url: http://www.chabotcollege.edu
 source_url: http://example.com
@@ -173,7 +173,7 @@ school_name:
 institution: Chabot College
 reason:
   - test_matcher.py
-explain: grid_match_cases.yml
+explain: The URL matches the institution; an unrelated source URL is ignored.
 ---
 url: http://alamo.edu/
 source_url:
@@ -182,7 +182,7 @@ school_name:
 institution: Alamo Colleges
 reason:
   - test_matcher.py
-explain: grid_match_cases.yml
+explain: The Alamo Colleges domain matches the aggregate institution.
 ---
 url: http://www.alamo.edu/nlc/
 source_url:
@@ -191,7 +191,7 @@ school_name:
 institution: Northeast Lakeview College
 reason:
   - test_matcher.py
-explain: grid_match_cases.yml
+explain: An exact campus URL matches the campus rather than the aggregate Alamo Colleges.
 ---
 url: http://www.harvard.edu
 source_url:
@@ -200,25 +200,25 @@ school_name:
 institution: Harvard University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: A URL matches by its domain.
 ---
-url: 
+url:
 source_url: http://www.harvard.edu
 email:
 school_name:
 institution: Harvard University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: A source URL is used when no URL is given.
 ---
-url: 
+url:
 source_url:
 email: example@harvard.edu
 school_name:
 institution: Harvard University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: An email domain is used when no URL or source URL is given.
 ---
 url: http://www.harvard.edu
 source_url: http://www.columbia.edu
@@ -227,7 +227,7 @@ school_name:
 institution: Harvard University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: The URL takes precedence over the source URL.
 ---
 url: http://www.harvard.edu
 source_url:
@@ -236,7 +236,7 @@ school_name:
 institution: Harvard University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: The URL takes precedence over the email.
 ---
 url: www.tc.columbia.edu
 source_url:
@@ -245,7 +245,7 @@ school_name:
 institution: Teachers College at Columbia University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: A specific subdomain matches its own institution rather than the parent domain's.
 ---
 url:
 source_url: www.tc.columbia.edu
@@ -254,7 +254,7 @@ school_name:
 institution: Teachers College at Columbia University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: A specific subdomain in the source URL matches its own institution rather than the parent domain's.
 ---
 url:
 source_url:
@@ -263,7 +263,7 @@ school_name:
 institution: Teachers College at Columbia University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: A specific subdomain in an email matches its own institution rather than the parent domain's.
 ---
 url: subdomain.columbia.edu
 source_url:
@@ -272,7 +272,7 @@ school_name:
 institution: Columbia University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: An unknown subdomain falls back to the parent domain's institution.
 ---
 url:
 source_url:
@@ -281,7 +281,7 @@ school_name:
 institution: Columbia University
 reason:
   - test_matcher.py
-explain: ipeds_match_cases.yml
+explain: An unknown subdomain in an email falls back to the parent domain's institution.
 ---
 url:
 source_url:
@@ -289,5 +289,5 @@ email:
 school_name:
 institution:
 reason:
-  - 
-explain: 
+  -
+explain:
