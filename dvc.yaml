@@ -100,11 +100,12 @@ stages:
       - metrics/dataset.json:
           cache: false
 
+  # uv.lock pins the os-normalizer version the lookup keys are built with.
   matcher:
     cmd: python -m os_institutions.matcher.build
     deps:
       - os_institutions/matcher/build.py
-      - os_institutions/normalizer
+      - uv.lock
       - artifacts/dataset/institutions.parquet
     outs:
       - artifacts/matcher/matcher.pickle
