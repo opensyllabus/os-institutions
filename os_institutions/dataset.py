@@ -288,7 +288,9 @@ def combine_url_lists(l1, l2):
     elif l2 is pd.NA:
         return l1
     else:
-        return list(set(l1 + l2))
+        # Keep first-seen order: a set would reorder with the per-process
+        # string hash seed, so a rebuild would not reproduce the same file.
+        return list(dict.fromkeys(l1 + l2))
 
 
 def get_extra_match_urls(df):

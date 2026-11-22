@@ -1,6 +1,7 @@
 import pandas as pd
 
 from os_institutions.dataset import (
+    combine_url_lists,
     get_country,
     get_country_code,
     get_enrollment,
@@ -146,3 +147,13 @@ def test_get_enrollment():
 
     assert (res == get_enrollment(df)).all()
     assert res.dtype == 'Int64'
+
+
+def test_combine_url_lists_dedupes_in_stable_order():
+    res = combine_url_lists(
+        ['http://b/', 'http://a/'], ['http://a/', 'http://c/']
+    )
+
+    assert res == ['http://b/', 'http://a/', 'http://c/']
+    assert combine_url_lists(pd.NA, pd.NA) is pd.NA
+    assert combine_url_lists(['http://a/'], pd.NA) == ['http://a/']
