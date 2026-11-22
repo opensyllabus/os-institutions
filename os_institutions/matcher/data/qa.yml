@@ -1,0 +1,293 @@
+---
+url: http://www.alamo.edu/
+source_url:
+email:
+school_name:
+institution: Alamo Colleges
+reason: 
+  - aggregation
+  - 2.7
+explain: All Alamo Colleges are canonicalized to Alamo Colleges
+---
+url: http://www.alamo.edu/nlc/
+source_url:
+email:
+school_name:
+institution: Northeast Lakeview College
+reason:
+  - unblacklisted
+  - 2.7
+explain: Northeast Lakeview College was unblacklisted, so its exact URL now matches the campus instead of Alamo Colleges.
+---
+url: https://www.umgc.edu/
+source_url:
+email:
+school_name:
+institution: University of Maryland Global Campus
+reason: 
+  - name change
+  - 2.7
+explain: University of Maryland University College is now University of Maryland Global Campus. This became apparent with the 2.7.
+---
+url: https://www.liberty.edu/
+source_url:
+email:
+school_name:
+institution: Liberty University
+reason: 
+  - 2.7
+explain: Liberty University had a sharp decrease in counts for 2.7 build.
+---
+url: https://www.ua.edu/
+source_url:
+email:
+school_name:
+institution: University of Alabama
+reason: 
+  - name change
+  - 2.7
+explain: The updated version of Grid has University of Alabama as the correct name.
+---
+url: https://www.agh.edu.pl/
+source_url:
+email:
+school_name:
+institution: AGH University of Krakow
+reason:
+  - 2.7
+explain: Sharp increase in counts with 2.7 build. It could be due to new syllabi.
+---
+url: https://www.usq.edu.au/
+source_url:
+email:
+school_name:
+institution: University of Southern Queensland
+reason:
+  - 2.7
+explain: Sharp decrease in counts with 2.7 build.
+---
+url: https://www.radford.edu/content/csat/home/itec/programs/cybersecurity.html
+source_url:
+email:
+school_name:
+institution: Radford University
+reason:
+  - 2.5
+  - path prefix
+  - master validation
+explain: Jefferson College of Health Sciences is part of Radford University, but it shouldn't be priortized over Radford. https://www.radford.edu/content/ruc/home/history/jchs-history.html
+---
+url: https://sites.google.com/a/g.clemson.edu/cpsc-8810/
+source_url:
+email:
+school_name:
+institution: Clemson University
+reason:
+  - 2.5
+  - google sites
+  - master validation
+explain: https://sites.google.com/ shouldn't match to Wood County School of Practical Nursing
+---
+url: https://sites.google.com/view/kefulu/cs211_19W
+source_url:
+email:
+school_name:
+institution:
+reason:
+  - 2.5
+  - google sites
+  - master validation
+explain: https://sites.google.com/ shouldn't match to Wood County School of Practical Nursing
+---
+url: http://faculty.baruch.cuny.edu/rholowczak/classes/4550/assign.html
+source_url:
+email:
+school_name:
+institution: Baruch College
+reason:
+  - 2.5
+  - master validation
+  - excluded domain
+explain: faculty.baruch.cuny.edu returns no match, so it matches cuny.edu.
+---
+url: https://www.math.csi.cuny.edu/
+source_url:
+email:
+school_name:
+institution: College of Staten Island
+reason:
+  - 2.5
+  - master validation
+  - cuny.edu
+explain: Since most cuny.edu URL has subdomain length of more than 1, it would default to City University of New York.
+---
+url: http://www.harvard.edu
+source_url:
+email:
+school_name:
+institution: Harvard University
+reason:
+  - test_matcher.py
+explain: The unit test from tests/matcher/test_match.py
+---
+url: http://www.example.com
+source_url:
+email:
+school_name:
+institution:
+reason:
+  - test_matcher.py
+explain: no_match_cases.yml
+---
+url:
+source_url: http://www.example.com
+email:
+school_name:
+institution:
+reason:
+  - test_matcher.py
+explain: no_match_cases.yml
+---
+url:
+source_url:
+email: foo@example.com
+school_name:
+institution:
+reason:
+  - test_matcher.py
+explain: no_match_cases.yml
+---
+url:
+source_url:
+email: example@harvard.edu
+school_name:
+institution: Harvard University
+reason:
+  - test_matcher.py
+explain: no_match_cases.yml. Modified because matcher only gets a single email.
+---
+url: http://www.chabotcollege.edu
+source_url: http://example.com
+email:
+school_name:
+institution: Chabot College
+reason:
+  - test_matcher.py
+explain: grid_match_cases.yml
+---
+url: http://alamo.edu/
+source_url:
+email:
+school_name:
+institution: Alamo Colleges
+reason:
+  - test_matcher.py
+explain: grid_match_cases.yml
+---
+url: http://www.alamo.edu/nlc/
+source_url:
+email:
+school_name:
+institution: Northeast Lakeview College
+reason:
+  - test_matcher.py
+explain: grid_match_cases.yml
+---
+url: http://www.harvard.edu
+source_url:
+email:
+school_name:
+institution: Harvard University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url: 
+source_url: http://www.harvard.edu
+email:
+school_name:
+institution: Harvard University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url: 
+source_url:
+email: example@harvard.edu
+school_name:
+institution: Harvard University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url: http://www.harvard.edu
+source_url: http://www.columbia.edu
+email:
+school_name:
+institution: Harvard University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url: http://www.harvard.edu
+source_url:
+email: example@columbia.email
+school_name:
+institution: Harvard University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url: www.tc.columbia.edu
+source_url:
+email:
+school_name:
+institution: Teachers College at Columbia University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url:
+source_url: www.tc.columbia.edu
+email:
+school_name:
+institution: Teachers College at Columbia University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url:
+source_url:
+email: example@tc.columbia.edu
+school_name:
+institution: Teachers College at Columbia University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url: subdomain.columbia.edu
+source_url:
+email:
+school_name:
+institution: Columbia University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url:
+source_url:
+email: example@subdomain.columbia.edu
+school_name:
+institution: Columbia University
+reason:
+  - test_matcher.py
+explain: ipeds_match_cases.yml
+---
+url:
+source_url:
+email:
+school_name:
+institution:
+reason:
+  - 
+explain: 

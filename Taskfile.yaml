@@ -1,0 +1,50 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+
+  docker:build:
+    desc: Build the Docker image
+    env:
+      DOCKER_BUILDKIT: 1
+    cmds:
+      - >
+        docker build
+        --platform linux/amd64
+        --build-arg=CODE_DIR=/opt/os-institutions
+        -t os_institutions
+        {{.CLI_ARGS}} .
+
+  docker:bash:
+    desc: Start a bash shell in the Docker container
+    cmds:
+      - >
+        docker run -it --rm
+        --platform linux/amd64
+        -v $(pwd):/opt/os-institutions
+        -e WANDB_API_KEY
+        {{.CLI_ARGS}}
+        os_institutions
+        bash
+
+  docker:test:
+    desc: Run tests (tests needing the W&B matcher skip without WANDB_API_KEY)
+    cmds:
+      - >
+        docker run --rm
+        --platform linux/amd64
+        -v $(pwd):/opt/os-institutions
+        -e WANDB_API_KEY
+        os_institutions
+        /bin/sh -c 'pytest {{.CLI_ARGS}}'
+
+  docker:lint:
+    desc: Run linter
+    cmds:
+      - >
+        docker run --rm
+        --platform linux/amd64
+        -v $(pwd):/opt/os-institutions
+        os_institutions
+        /bin/sh -c 'ruff check {{.CLI_ARGS}} && ruff format --check {{.CLI_ARGS}}'
