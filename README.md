@@ -174,6 +174,14 @@ point into the container's `/opt/os-institutions` and dangle on the host.
    (`task pr:clean` does it by hand). The final dataset and matcher are
    attached to a versioned GitHub release later.
 
+### Releasing
+
+Bump `version` in `pyproject.toml`, merge, and check out the merged commit.
+Then run `task release:publish TAG=vX.Y.Z` (needs `gh` and `jq`; `DRY_RUN=1` to
+preview). It takes `matcher.json.gz` and `institutions.parquet` from
+`artifacts/`, writes `manifest.json` and `SHA256SUMS`, and creates the release.
+Pass `-- --assets DIR --sources-file FILE` to release files built elsewhere.
+
 ### Mapping null institutions
 
 [`map_null_institutions.py`](./os_institutions/map_null_institutions.py) can

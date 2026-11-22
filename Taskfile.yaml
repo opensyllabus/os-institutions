@@ -137,3 +137,8 @@ tasks:
     desc: "Delete the pr-<N> pre-release and tag (PR=<N>, default: current branch's PR). Needs gh."
     cmds:
       - scripts/pr_release.sh clean {{.PR}}
+
+  release:publish:
+    desc: "Create the GitHub release TAG=vX.Y.Z from artifacts/ (or -- --assets DIR --sources-file FILE; DRY_RUN=1 to preview). Needs gh, jq."
+    cmds:
+      - scripts/release.sh {{.TAG}} {{.CLI_ARGS}}

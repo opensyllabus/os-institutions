@@ -1,0 +1,23 @@
+name: Release
+
+# The release and its assets are created locally with `task release:publish`;
+# this only checks the tag it created.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml | head -n1)
+          [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "Tag $GITHUB_REF_NAME does not match pyproject.toml version $version" >&2; exit 1; }
+
+  check:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
