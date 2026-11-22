@@ -1,0 +1,68 @@
+schema: '2.0'
+stages:
+  dataset:
+    cmd: python -m os_institutions.dataset build
+    deps:
+    - path: artifacts/ipeds/ipeds.parquet
+      hash: md5
+      md5: 18cc08db2102239e609b9ea76e6e7536
+      size: 474854
+    - path: artifacts/ror/ror.parquet
+      hash: md5
+      md5: e470ed23376b36b3a5f98b902c5e8398
+      size: 3997118
+    - path: artifacts/wikidata/wikidata.parquet
+      hash: md5
+      md5: 1921e90845105de4569741e5fd36928c
+      size: 2756276
+    - path: artifacts/wikipedia/wikipedia.parquet
+      hash: md5
+      md5: 806bec6b2503381e26324bf5e205fef3
+      size: 5439852
+    - path: os_institutions/data
+      hash: md5
+      md5: 1b206f7a5d71c6f355509fc51c8697fb.dir
+      size: 135431
+      nfiles: 21
+    - path: os_institutions/dataset.py
+      hash: md5
+      md5: 24ae975fa5fc07638e8b057188a3b5e0
+      size: 15492
+    - path: os_institutions/schema_model.py
+      hash: md5
+      md5: 127097343a48262a4d69c0eabe7bc79b
+      size: 10691
+    outs:
+    - path: artifacts/dataset/institutions.parquet
+      hash: md5
+      md5: f347098f56bf2f4c3e2da14fc1f065a6
+      size: 10836639
+    - path: metrics/dataset.json
+      hash: md5
+      md5: 1e545e2a37bf7fa27ba2dc5fc65ce503
+      size: 34
+  matcher:
+    cmd: python -m os_institutions.matcher.build
+    deps:
+    - path: artifacts/dataset/institutions.parquet
+      hash: md5
+      md5: f347098f56bf2f4c3e2da14fc1f065a6
+      size: 10836639
+    - path: os_institutions/matcher/build.py
+      hash: md5
+      md5: cf9486de55b076f7b3f7a4617f3ede34
+      size: 4993
+    - path: os_institutions/normalizer
+      hash: md5
+      md5: 70a6f106194108e8a57eb607e714a62a.dir
+      size: 27871
+      nfiles: 8
+    outs:
+    - path: artifacts/matcher/matcher.pickle
+      hash: md5
+      md5: c8a2fad5ac732f5decf15fc97b705571
+      size: 22177804
+    - path: metrics/matcher.json
+      hash: md5
+      md5: 71996851086d3baf41b3fcc68ab9f50b
+      size: 52
