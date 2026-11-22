@@ -23,12 +23,14 @@ institution matcher built on top of it.
 
 ## Development
 
-Everything runs in Docker (see [`Taskfile.yaml`](./Taskfile.yaml)):
+Everything runs in Docker (see [`Taskfile.yaml`](./Taskfile.yaml)). Dependencies
+are managed with [uv](https://docs.astral.sh/uv/) and locked in `uv.lock`.
 
 ```sh
 task docker:build   # build the image
 task docker:test    # run the tests
 task docker:lint    # ruff check + ruff format --check
+task docker:lock    # update uv.lock (-- --check to verify it)
 task docker:bash    # interactive shell
 ```
 
@@ -43,9 +45,10 @@ Catalog of institutions based on IPEDS, ROR, and Wikidata.
 ### The pipeline
 
 The stages are described in [`dvc.yaml`](./dvc.yaml) and run with
-[DVC](https://dvc.org). DVC is a command-line tool installed in the Docker
-image; the library never imports it, and there is no DVC remote. Everything
-below runs in Docker through the tasks:
+[DVC](https://dvc.org). DVC is a command-line tool in the optional `dvc`
+dependency group; the library never imports it, and there is no DVC remote.
+Everything below runs in Docker through the tasks, on an image built with
+`task docker:build:dvc`:
 
 ```sh
 task docker:repro                  # run every stage whose inputs changed

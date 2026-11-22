@@ -16,5 +16,6 @@ jobs:
           version: 3.x
           repo-token: ${{ github.token }}
       - run: task docker:build
+      - run: task docker:lock -- --check
       - run: task docker:test
       - run: task docker:lint
