@@ -88,7 +88,7 @@ tasks:
         /bin/sh -c 'uv run ruff check {{.CLI_ARGS}} && uv run ruff format --check {{.CLI_ARGS}}'
 
   docker:compare:
-    desc: "Compare two matchers on a sample (aggregates only), e.g. -- --path .private/sample --old old.pickle --new new.pickle"
+    desc: "Compare two matchers on a sample (aggregates only), e.g. -- --path .private/sample --old old.json.gz --new new.json.gz"
     cmds:
       - >
         docker run --rm

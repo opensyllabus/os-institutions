@@ -41,7 +41,7 @@ task docker:bash    # interactive shell
 ```
 
 Tests that load the matcher (`tests/matcher/test_match.py`) use
-`artifacts/matcher/matcher.pickle`, which is built by the `matcher` stage and
+`artifacts/matcher/matcher.json.gz`, which is built by the `matcher` stage and
 never committed. They are skipped when it is absent, as in CI.
 
 ## Institutions dataset
@@ -102,7 +102,7 @@ The same workflow applies to all pipelines.
 | `dvc.yaml`, `params.yaml`, `dvc.lock` | git |
 | `runs/<UTC timestamp>-<stage>/` (`run.log`, `run.json`, `summary.json`) | git |
 | `metrics/<stage>.json` | git |
-| `artifacts/<stage>/*` (parquet files, `matcher.pickle`) | local only, git-ignored |
+| `artifacts/<stage>/*` (parquet files, `matcher.json.gz`) | local only, git-ignored |
 | `.dvc/cache` | local only |
 
 Each stage logs to `runs/<UTC timestamp>-<stage>/`. `run.json` records the
@@ -211,7 +211,7 @@ Rows that are dropped from the dataset at build time are documented in
    python -m os_institutions.matcher.build
    ```
 
-   The matcher is written to `artifacts/matcher/matcher.pickle`.
+   The matcher is written to `artifacts/matcher/matcher.json.gz`: gzip-compressed JSON (no code runs on load) that records the os-normalizer version it was built with. Loading warns when the installed version differs.
 
 2. Validate the new matcher:
 
@@ -237,7 +237,7 @@ Rows that are dropped from the dataset at build time are documented in
    [`map_null_institutions.py`](./os_institutions/map_null_institutions.py)
    (see [Mapping null institutions](#mapping-null-institutions)).
 
-Both tools take `--matcher` to use a pickle other than the default.
+Both tools take `--matcher` to use a matcher file other than the default.
 
 ### Private data
 
@@ -275,5 +275,5 @@ and optionally `AWS_REGION`. Without them the job reports "skipped" and
 passes. The same comparison runs locally on any sample:
 
 ```sh
-task docker:compare -- --path .private/sample --old old.pickle --new new.pickle
+task docker:compare -- --path .private/sample --old old.json.gz --new new.json.gz
 ```

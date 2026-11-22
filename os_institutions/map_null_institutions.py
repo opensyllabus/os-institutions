@@ -20,7 +20,7 @@ def make_url_mappings(
         "and 'home_url' columns.",
     ),
     matcher: Path | None = typer.Option(
-        None, help='Matcher pickle (default: the matcher output).'
+        None, help='Matcher file (default: the matcher output).'
     ),
     out_dir: Path = typer.Option(
         DATA_DIR, help='Where to write the extended `.yml.new` files.'

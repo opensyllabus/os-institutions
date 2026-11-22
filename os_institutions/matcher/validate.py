@@ -16,7 +16,7 @@ PATH_QA = Path(__file__).parent / "data" / "qa.yml"
 app = typer.Typer()
 
 MATCHER_OPTION = typer.Option(
-    None, help="Matcher pickle (default: the matcher output)."
+    None, help="Matcher file (default: the matcher output)."
 )
 
 

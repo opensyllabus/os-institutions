@@ -12,7 +12,7 @@ OUTPUTS = {
     'wikipedia': 'wikipedia.parquet',
     'ipeds': 'ipeds.parquet',
     'dataset': 'institutions.parquet',
-    'matcher': 'matcher.pickle',
+    'matcher': 'matcher.json.gz',
 }
 
 

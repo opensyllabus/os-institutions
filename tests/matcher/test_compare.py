@@ -1,10 +1,9 @@
 import json
-import pickle
 
 import pandas as pd
 from typer.testing import CliRunner
 
-from os_institutions.matcher import Institution
+from os_institutions.matcher import Institution, format
 from os_institutions.matcher.compare import app
 
 
@@ -15,8 +14,7 @@ def institution(_id, name, ror_id, domain_url):
 
 
 def write_matcher(path, institutions, lookup):
-    with open(path, 'wb') as fh:
-        pickle.dump({'institutions': institutions, 'lookup': lookup}, fh)
+    format.save({'institutions': institutions, 'lookup': lookup}, path)
 
 
 EXAMPLE = ('Example University', 'ror:example', 'http://example.edu/')
@@ -39,13 +37,13 @@ def make_inputs(tmp_path):
     # In the old matcher other.edu is institution 1; in the new one the row
     # indexes differ and example.edu is gone, other.edu moves to a different
     # institution, and third.edu is new (but unused by the sample).
-    old = tmp_path / 'old.pickle'
+    old = tmp_path / 'old.json.gz'
     write_matcher(
         old,
         [institution(0, *EXAMPLE), institution(1, *OTHER)],
         {'example.edu': 0, 'other.edu': 1},
     )
-    new = tmp_path / 'new.pickle'
+    new = tmp_path / 'new.json.gz'
     write_matcher(
         new,
         [institution(0, *OTHER), institution(1, *THIRD)],

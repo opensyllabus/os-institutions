@@ -223,7 +223,7 @@ __marimo__/
 .streamlit/secrets.toml
 
 # --- os-institutions ---
-# Stage outputs (datasets, matcher pickle). Local only; see dvc.yaml.
+# Stage outputs (datasets, matcher file). Local only; see dvc.yaml.
 artifacts/
 # Local scratch space, never committed.
 .private/
