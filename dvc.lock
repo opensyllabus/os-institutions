@@ -69,3 +69,46 @@ stages:
       hash: md5
       md5: 71996851086d3baf41b3fcc68ab9f50b
       size: 52
+  ror_dist:
+    cmd: python -m os_institutions.sources.ror_dist build
+    deps:
+    - path: os_institutions/sources/ror_dist.py
+      hash: md5
+      md5: ce8b35edaee5f78b6746e9cdab526ace
+      size: 3890
+    params:
+      params.yaml:
+        ror_dist.release: v2.16
+    outs:
+    - path: artifacts/ror_dist/ror_dist.parquet
+      hash: md5
+      md5: 1045cafd816b1ff914e589e2ea533419
+      size: 21640282
+    - path: metrics/ror_dist.json
+      hash: md5
+      md5: 836edbf5fa99ee9c9e4b21d5b3bdcdc4
+      size: 35
+  ror:
+    cmd: python -m os_institutions.sources.ror build
+    deps:
+    - path: artifacts/ror_dist/ror_dist.parquet
+      hash: md5
+      md5: 1045cafd816b1ff914e589e2ea533419
+      size: 21640282
+    - path: os_institutions/data/ror_extra_institutions.csv
+      hash: md5
+      md5: 68a7b6dc93b289e0bb759e51853f6b12
+      size: 90
+    - path: os_institutions/sources/ror.py
+      hash: md5
+      md5: f6d743936751848bd0567e1144d83296
+      size: 5850
+    outs:
+    - path: artifacts/ror/ror.parquet
+      hash: md5
+      md5: e470ed23376b36b3a5f98b902c5e8398
+      size: 3997118
+    - path: metrics/ror.json
+      hash: md5
+      md5: 08a05dd636dbac08831ad5a133983c4c
+      size: 34
