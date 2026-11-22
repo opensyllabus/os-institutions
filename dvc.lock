@@ -50,13 +50,12 @@ stages:
       size: 10836639
     - path: os_institutions/matcher/build.py
       hash: md5
-      md5: cf9486de55b076f7b3f7a4617f3ede34
-      size: 4993
-    - path: os_institutions/normalizer
+      md5: 17d2ea4af7eb209d2807594310835372
+      size: 4967
+    - path: uv.lock
       hash: md5
-      md5: 70a6f106194108e8a57eb607e714a62a.dir
-      size: 27871
-      nfiles: 8
+      md5: b6a9f144c7d4eb37466e5bc2d86eae4b
+      size: 195288
     outs:
     - path: artifacts/matcher/matcher.pickle
       hash: md5

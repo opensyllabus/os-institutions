@@ -13,7 +13,6 @@ institution matcher built on top of it.
 | `os_institutions/schema_model.py` | Pandera schemas for every artifact |
 | `os_institutions/data/` | Hand-maintained inputs: URL mappings, extra IDs, blacklists |
 | `os_institutions/matcher/` | Institution matcher: build, validate, and runtime lookup |
-| `os_institutions/normalizer/` | URL and school-name normalization used by the matcher |
 | `os_institutions/map_null_institutions.py` | Helper to expand the `*_match_urls.yml` files |
 | `os_institutions/runs.py` | Per-run logs written by every pipeline stage |
 | `dvc.yaml`, `params.yaml`, `dvc.lock` | The DVC pipeline, its parameters, and the lock of the last run |
@@ -26,11 +25,18 @@ institution matcher built on top of it.
 Everything runs in Docker (see [`Taskfile.yaml`](./Taskfile.yaml)). Dependencies
 are managed with [uv](https://docs.astral.sh/uv/) and locked in `uv.lock`.
 
+URL and school-name normalization comes from
+[os-normalizer](https://github.com/opensyllabus/os-normalizer), pinned to a release
+tag in `pyproject.toml`. While that repo is private, building the image needs
+read access to it: `SSH_KEY=path/to/key task docker:build` (or an ssh agent), and
+`SSH_KEY=path/to/key task docker:lock:update` to change the lock. CI uses the
+`OS_NORMALIZER_DEPLOY_KEY` secret.
+
 ```sh
 task docker:build   # build the image
 task docker:test    # run the tests
 task docker:lint    # ruff check + ruff format --check
-task docker:lock    # update uv.lock (-- --check to verify it)
+task docker:lock    # verify uv.lock is up to date
 task docker:bash    # interactive shell
 ```
 

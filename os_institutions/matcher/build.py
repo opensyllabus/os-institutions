@@ -8,11 +8,11 @@ from pathlib import Path
 import pandas as pd
 import typer
 from loguru import logger
+from os_normalizer.institution import normalize_school_name
+from os_normalizer.uri import get_domain_url, get_full_url
 from tqdm import tqdm
 
 from os_institutions import dataset, runs
-from os_institutions.normalizer.institution import normalize_school_name
-from os_institutions.normalizer.uri import get_domain_url, get_full_url
 from os_institutions.paths import artifact_path
 
 STAGE = "matcher"
