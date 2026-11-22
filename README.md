@@ -4,6 +4,40 @@ Educational &amp; Research institutions dataset based on ROR, IPEDs, and Wikidat
 This repository holds the pipeline that builds the institutions dataset and the
 institution matcher built on top of it.
 
+## Use as a library
+
+```sh
+pip install "os-institutions @ git+https://github.com/opensyllabus/os-institutions.git@v1.0.0"
+# uv: dependencies = ["os-institutions @ git+https://github.com/opensyllabus/os-institutions.git@v1.0.0"]
+```
+
+```python
+import os_institutions
+
+matcher = os_institutions.load_matcher()   # the release matching the installed version
+institution = matcher(url='https://www.harvard.edu', school_name='Harvard University')
+dataset = os_institutions.load_dataset()   # pandas DataFrame, checked against the schema
+os_institutions.load_matcher('latest')     # newest release; or pin: load_matcher('v1.0.0')
+os_institutions.load_matcher(path='matcher.json.gz')  # a local file, no network
+os_institutions.download()                 # fetch all assets, e.g. when building an image
+```
+
+Assets are downloaded once to `~/.cache/os-institutions/<tag>/` (set
+`OS_INSTITUTIONS_CACHE` to move it), checked against the release's `SHA256SUMS`,
+and reused offline. While the repository is private, set `GITHUB_TOKEN` (or
+`GH_TOKEN`) to a token that can read it; it is only sent to GitHub's API.
+
+### Release assets
+
+One tag per release, `vX.Y.Z`, matching the package version. Each release has:
+
+| Asset | Contents |
+|---|---|
+| `matcher.json.gz` | The matcher (see "Institution matcher") |
+| `institutions.parquet` | The institutions dataset |
+| `manifest.json` | `version`, `git_sha`, `normalizer_version`, `sources` (the pinned version or snapshot of each input), and `assets` (`sha256` and `bytes` of each file) |
+| `SHA256SUMS` | `sha256sum` output for the three files above |
+
 ## Layout
 
 | Path | Contents |
@@ -14,6 +48,7 @@ institution matcher built on top of it.
 | `os_institutions/data/` | Hand-maintained inputs: URL mappings, extra IDs, blacklists |
 | `os_institutions/matcher/` | Institution matcher: build, validate, and runtime lookup |
 | `os_institutions/map_null_institutions.py` | Helper to expand the `*_match_urls.yml` files |
+| `os_institutions/release.py` | Library API: fetch, verify and load released assets |
 | `os_institutions/runs.py` | Per-run logs written by every pipeline stage |
 | `dvc.yaml`, `params.yaml`, `dvc.lock` | The DVC pipeline, its parameters, and the lock of the last run |
 | `runs/`, `metrics/` | Committed run logs and per-stage metrics |
