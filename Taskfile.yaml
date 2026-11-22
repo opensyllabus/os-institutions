@@ -116,3 +116,13 @@ tasks:
         -v $(pwd):/opt/os-institutions
         os_institutions:dvc
         uv run dvc metrics diff --md {{.CLI_ARGS}}
+
+  pr:publish:
+    desc: "Upload artifacts/ and metrics/ to the pr-<N> pre-release and comment on the PR (PR=<N>, default: current branch's PR; DRY_RUN=1 to preview). Needs gh."
+    cmds:
+      - scripts/pr_release.sh publish {{.PR}}
+
+  pr:clean:
+    desc: "Delete the pr-<N> pre-release and tag (PR=<N>, default: current branch's PR). Needs gh."
+    cmds:
+      - scripts/pr_release.sh clean {{.PR}}
