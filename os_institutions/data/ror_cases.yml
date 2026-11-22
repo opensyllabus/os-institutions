@@ -1,0 +1,215 @@
+02b9aym09:
+  ipeds_c18basic: 16
+  ipeds_city: Washington
+  ipeds_control: 2
+  ipeds_hbcu: false
+  wikidata_url: http://www.gallaudet.edu
+  extra_unitid: null
+  ipeds_stabbr: DC
+  ipeds_tribal: false
+  ipeds_c18ugprf: 11
+  ipeds_webaddr: www.gallaudet.edu
+  ipeds_effylev: 1
+  ror_city: Washington D.C.
+  ror_country_code: US
+  ror_url: http://www.gallaudet.edu/
+  ror_name: Gallaudet University
+  ror_state_code: US-DC
+  ror_state: District of Columbia
+  ror_lat: 38.907222
+  ror_lng: -76.993056
+  lat: 38.907371
+  lng: -76.993675
+  ipeds_unitid: 131450
+  wikidata_unitid: 131450
+  unitid: 131450
+  ror_wikidata_id: Q1056373
+  wikidata_id: Q1056373
+  ipeds_instnm: Gallaudet University
+  extra_match_urls: null
+  extra_prefix_urls: null
+  country_code: US
+  ror_country_name: United States
+  country: United States
+  state_code: US-DC
+  state: District of Columbia
+  city: Washington
+  name: Gallaudet University
+  url: http://www.gallaudet.edu/
+  two_year: false
+  four_year: true
+  graduate: true
+  research: false
+  extra_enrollment: null
+010bgev76:
+  ipeds_c18basic: 23
+  ipeds_city: Temple Terrace
+  ipeds_control: 2
+  ipeds_hbcu: false
+  wikidata_url: http://www.floridacollege.edu
+  extra_unitid: null
+  ipeds_stabbr: FL
+  ipeds_tribal: false
+  ipeds_c18ugprf: 10
+  ipeds_webaddr: www.floridacollege.edu
+  ipeds_effylev: 1
+  ror_city: Temple Terrace
+  ror_country_code: US
+  ror_url: https://floridacollege.edu/
+  ror_name: Florida College
+  ror_state_code: US-FL
+  ror_state: Florida
+  ror_lat: 28.034559
+  ror_lng: -82.383495
+  lat: 28.034936
+  lng: -82.383289
+  ipeds_unitid: 133809
+  wikidata_unitid: 133809
+  unitid: 133809
+  ror_wikidata_id: Q5461285
+  wikidata_id: Q5461285
+  ipeds_instnm: Florida College
+  extra_match_urls: null
+  extra_prefix_urls: null
+  country_code: US
+  ror_country_name: United States
+  country: United States
+  state_code: US-FL
+  state: Florida
+  city: Temple Terrace
+  name: Florida College
+  url: https://floridacollege.edu/
+  two_year: false
+  four_year: true
+  graduate: false
+  research: false
+  extra_enrollment: null
+045wr3278:
+  ipeds_c18basic: null
+  ipeds_city: null
+  ipeds_control: null
+  ipeds_hbcu: null
+  wikidata_url: http://www.dhu.ac.kr
+  extra_unitid: null
+  ipeds_stabbr: null
+  ipeds_tribal: null
+  ipeds_c18ugprf: null
+  ipeds_webaddr: null
+  ipeds_effylev: null
+  ror_city: Daegu
+  ror_country_code: KR
+  ror_url: http://english.dhu.ac.kr/
+  ror_name: Daegu Haany University
+  ror_state_code: null
+  ror_state: null
+  ror_lat: 35.796
+  ror_lng: 128.775
+  lat: 35.796
+  lng: 128.775
+  ipeds_unitid: null
+  wikidata_unitid: null
+  unitid: null
+  ror_wikidata_id: Q5208190
+  wikidata_id: Q5208190
+  ipeds_instnm: null
+  extra_match_urls: null
+  extra_prefix_urls: null
+  country_code: KR
+  ror_country_name: South Korea
+  country: South Korea
+  state_code: null
+  state: Daegu
+  city: Daegu
+  name: Daegu Haany University
+  url: http://english.dhu.ac.kr/
+  two_year: null
+  four_year: null
+  graduate: null
+  research: null
+  extra_enrollment: null
+009p4eg54:
+  ipeds_c18basic: null
+  ipeds_city: null
+  ipeds_control: null
+  ipeds_hbcu: null
+  wikidata_url: http://tmbu.org/
+  extra_unitid: null
+  ipeds_stabbr: null
+  ipeds_tribal: null
+  ipeds_c18ugprf: null
+  ipeds_webaddr: null
+  ipeds_effylev: null
+  ror_city: "B\u0101nka"
+  ror_country_code: IN
+  ror_url: http://tmbuniv.ac.in/
+  ror_name: Tilka Manjhi Bhagalpur University
+  ror_state_code: null
+  ror_state: null
+  ror_lat: 25.25021
+  ror_lng: 86.957985
+  lat: 25.248936111
+  lng: 86.957852777
+  ipeds_unitid: null
+  wikidata_unitid: null
+  unitid: null
+  ror_wikidata_id: Q7802165
+  wikidata_id: Q7802165
+  ipeds_instnm: null
+  extra_match_urls: null
+  extra_prefix_urls: null
+  country_code: IN
+  ror_country_name: India
+  country: India
+  state_code: BR
+  state: Bihar
+  city: "B\u0101nka"
+  name: Tilka Manjhi Bhagalpur University
+  url: http://tmbuniv.ac.in/
+  two_year: null
+  four_year: null
+  graduate: null
+  research: null
+  extra_enrollment: null
+00746ch50:
+  ipeds_c18basic: null
+  ipeds_city: null
+  ipeds_control: null
+  ipeds_hbcu: null
+  ipeds_instnm: null
+  wikidata_url: null
+  extra_unitid: null
+  ipeds_stabbr: null
+  ipeds_tribal: null
+  ipeds_c18ugprf: null
+  ipeds_webaddr: null
+  ipeds_effylev: null
+  extra_match_urls: null
+  extra_prefix_urls: null
+  ror_city: Cairo
+  ror_country_code: EG
+  ror_url: https://mti.edu.eg
+  ror_name: Modern University for Technology and Information
+  ror_state_code: null
+  ror_state: null
+  ror_lat: 30.06263
+  ror_lng: 31.24967
+  lat: 30.06263
+  lng: 31.24967
+  ipeds_unitid: null
+  wikidata_unitid: null
+  unitid: null
+  ror_wikidata_id: Q30293656
+  wikidata_id: null
+  city: Cairo
+  country_code: EG
+  ror_country_name: Egypt
+  country: Egypt
+  name: Modern University for Technology and Information
+  url: https://mti.edu.eg
+  state_code: C
+  state: Cairo
+  two_year: null
+  four_year: null
+  graduate: null
+  research: null
+  extra_enrollment: null

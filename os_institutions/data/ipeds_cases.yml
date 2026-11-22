@@ -1,0 +1,171 @@
+110538:
+  ipeds_instnm: California State University-Chico
+  ipeds_c21basic: 18
+  ipeds_city: Chico
+  ipeds_control: 1
+  ipeds_hbcu: false
+  wikidata_url: http://www.csuchico.edu
+  extra_unitid: null
+  ipeds_stabbr: CA
+  ipeds_tribal: false
+  ipeds_webaddr: www.csuchico.edu
+  ipeds_effylev: 1
+  ror_city: Chico
+  ror_country_code: US
+  ror_url: 'https://www.csuchico.edu'
+  ror_name: California State University, Chico
+  ror_state_code: US-CA
+  ror_state: California
+  ror_lat: 39.731667
+  ror_lng: -121.849444
+  lat: 39.729712
+  lng: -121.844859
+  ipeds_unitid: 110538
+  wikidata_unitid: 110538
+  unitid: 110538
+  ror_wikidata_id: Q1026912
+  wikidata_id: Q1026912
+  extra_match_urls: null
+  extra_prefix_urls: null
+  country_code: 'US'
+  ror_country_name: 'United States'
+  country: 'United States'
+  state_code: 'US-CA'
+  state: 'California'
+  city: 'Chico'
+  name: 'California State University, Chico'
+  url: 'https://www.csuchico.edu'
+  two_year: false
+  four_year: true
+  graduate: true
+  research: false
+  extra_enrollment: null
+
+110583:
+  ipeds_instnm: California State University-Long Beach
+  ipeds_c21basic: 18
+  ipeds_city: Long Beach
+  ipeds_control: 1
+  ipeds_hbcu: false
+  wikidata_url: http://www.csulb.edu
+  extra_unitid: null
+  ipeds_stabbr: CA
+  ipeds_tribal: false
+  ipeds_webaddr: www.csulb.edu
+  ipeds_effylev: 1
+  ror_city: Long Beach
+  ror_country_code: US
+  ror_url: 'https://csulb.edu'
+  ror_name: California State University, Long Beach
+  ror_state_code: US-CA
+  ror_state: California
+  ror_lat: 33.783022
+  ror_lng: -118.112858
+  lat: 33.782818
+  lng: -118.11204
+  ipeds_unitid: 110583
+  wikidata_unitid: 110583
+  unitid: 110583
+  ror_wikidata_id: Q1026926
+  wikidata_id: Q1026926
+  extra_match_urls: null
+  extra_prefix_urls: null
+  country_code: 'US'
+  ror_country_name: 'United States'
+  country: 'United States'
+  state_code: 'US-CA'
+  state: 'California'
+  city: 'Long Beach'
+  name: 'California State University, Long Beach'
+  url: 'https://www.csulb.edu'
+  two_year: false
+  four_year: true
+  graduate: true
+  research: true
+  extra_enrollment: null
+
+144050:
+  ipeds_instnm: University of Chicago
+  ipeds_c21basic: 15
+  ipeds_city: Chicago
+  ipeds_control: 2
+  ipeds_hbcu: false
+  wikidata_url: http://www.uchicago.edu
+  extra_unitid: null
+  ipeds_stabbr: IL
+  ipeds_tribal: false
+  ipeds_webaddr: WWW.UCHICAGO.EDU
+  ipeds_effylev: 1
+  ror_city: Chicago
+  ror_country_code: US
+  ror_url: 'https://www.uchicago.edu'
+  ror_name: University of Chicago
+  ror_state_code: US-IL
+  ror_state: Illinois
+  ror_lat: 41.788848
+  ror_lng: -87.598702
+  lat: 41.787994
+  lng: -87.599539
+  ipeds_unitid: 144050
+  wikidata_unitid: 144050
+  unitid: 144050
+  ror_wikidata_id: Q131252
+  wikidata_id: Q131252
+  extra_match_urls: null
+  extra_prefix_urls: null
+  country_code: 'US'
+  ror_country_name: 'United States'
+  country: 'United States'
+  state_code: 'US-IL'
+  state: 'Illinois'
+  city: 'Chicago'
+  name: 'University of Chicago'
+  url: 'https://www.uchicago.edu'
+  two_year: false
+  four_year: true
+  graduate: true
+  research: true
+  extra_enrollment: null
+
+243744:
+  ipeds_instnm: Stanford University
+  ipeds_c21basic: 15
+  ipeds_city: Stanford
+  ipeds_control: 2
+  ipeds_hbcu: false
+  wikidata_url: https://www.stanford.edu
+  extra_unitid: null
+  ipeds_stabbr: CA
+  ipeds_tribal: false
+  ipeds_webaddr: www.stanford.edu
+  ipeds_effylev: 1
+  ror_city: Stanford
+  ror_country_code: US
+  ror_url: 'https://www.stanford.edu'
+  ror_name: Stanford University
+  ror_state_code: US-CA
+  ror_state: California
+  ror_lat: 37.43
+  ror_lng: -122.17
+  lat: 37.429434
+  lng: -122.167359
+  ipeds_unitid: 243744
+  wikidata_unitid: 243744
+  unitid: 243744
+  ror_wikidata_id: Q41506
+  wikidata_id: Q41506
+  extra_match_urls: null
+  extra_prefix_urls: null
+  country_code: 'US'
+  ror_country_name: 'United States'
+  country: 'United States'
+  state_code: 'US-CA'
+  state: 'California'
+  city: 'Stanford'
+  name: 'Stanford University'
+  url: 'https://www.stanford.edu'
+  two_year: false
+  four_year: true
+  graduate: true
+  research: true
+  extra_enrollment: null
