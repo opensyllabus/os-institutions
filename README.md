@@ -126,6 +126,19 @@ Hardlinks work on a Docker bind mount as long as the cache and `artifacts/`
 are on the same mount (as they are here). If DVC falls back to symlinks, they
 point into the container's `/opt/os-institutions` and dangle on the host.
 
+### PR workflow
+
+1. Run the pipeline (`task docker:repro`) and commit `runs/`, `dvc.lock`,
+   `metrics/` and any `params.yaml` change.
+2. Push the branch and open the PR, then run `task pr:publish` (needs
+   [`gh`](https://cli.github.com); `PR=<N>` to pick a PR, `DRY_RUN=1` to
+   preview). It uploads `artifacts/` and `metrics/` to a `pr-<N>` pre-release
+   with a `SHA256SUMS` file, and posts or updates one PR comment with the
+   stage metrics. Assets are limited to 2 GiB each.
+3. The pre-release is deleted when the PR is closed or merged
+   (`task pr:clean` does it by hand). The final dataset and matcher are
+   attached to a versioned GitHub release later.
+
 ### Mapping null institutions
 
 [`map_null_institutions.py`](./os_institutions/map_null_institutions.py) can
