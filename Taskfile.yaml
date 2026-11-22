@@ -16,6 +16,19 @@ tasks:
         -t os_institutions
         {{.CLI_ARGS}} .
 
+  docker:build:dvc:
+    desc: Build the Docker image with DVC, for pipeline runs
+    env:
+      DOCKER_BUILDKIT: 1
+    cmds:
+      - >
+        docker build
+        --platform linux/amd64
+        --build-arg=CODE_DIR=/opt/os-institutions
+        --build-arg=UV_SYNC_ARGS="--group dvc"
+        -t os_institutions:dvc
+        {{.CLI_ARGS}} .
+
   docker:bash:
     desc: Start a bash shell in the Docker container
     cmds:
@@ -27,6 +40,16 @@ tasks:
         os_institutions
         bash
 
+  docker:lock:
+    desc: Update uv.lock (pass --check to only verify it)
+    cmds:
+      - >
+        docker run --rm
+        --platform linux/amd64
+        -v $(pwd):/opt/os-institutions
+        os_institutions
+        uv lock {{.CLI_ARGS}}
+
   docker:test:
     desc: Run tests (tests needing the built matcher skip when it is absent)
     cmds:
@@ -35,7 +58,7 @@ tasks:
         --platform linux/amd64
         -v $(pwd):/opt/os-institutions
         os_institutions
-        /bin/sh -c 'pytest {{.CLI_ARGS}}'
+        uv run pytest {{.CLI_ARGS}}
 
   docker:lint:
     desc: Run linter
@@ -45,34 +68,34 @@ tasks:
         --platform linux/amd64
         -v $(pwd):/opt/os-institutions
         os_institutions
-        /bin/sh -c 'ruff check {{.CLI_ARGS}} && ruff format --check {{.CLI_ARGS}}'
+        /bin/sh -c 'uv run ruff check {{.CLI_ARGS}} && uv run ruff format --check {{.CLI_ARGS}}'
 
   docker:repro:
-    desc: Run the DVC pipeline (dvc repro; pass stage names or flags after --)
+    desc: Run the DVC pipeline (needs docker:build:dvc; pass stage names or flags after --)
     cmds:
       - >
         docker run --rm
         --platform linux/amd64
         -v $(pwd):/opt/os-institutions
-        os_institutions
-        /bin/sh -c 'dvc repro {{.CLI_ARGS}}'
+        os_institutions:dvc
+        uv run dvc repro {{.CLI_ARGS}}
 
   docker:dag:
-    desc: Show the pipeline DAG
+    desc: Show the pipeline DAG (needs docker:build:dvc)
     cmds:
       - >
         docker run --rm
         --platform linux/amd64
         -v $(pwd):/opt/os-institutions
-        os_institutions
-        /bin/sh -c 'dvc dag {{.CLI_ARGS}}'
+        os_institutions:dvc
+        uv run dvc dag {{.CLI_ARGS}}
 
   docker:metrics:
-    desc: Compare stage metrics with git HEAD as markdown (dvc metrics diff)
+    desc: Compare stage metrics with git HEAD as markdown (needs docker:build:dvc)
     cmds:
       - >
         docker run --rm
         --platform linux/amd64
         -v $(pwd):/opt/os-institutions
-        os_institutions
-        /bin/sh -c 'dvc metrics diff --md {{.CLI_ARGS}}'
+        os_institutions:dvc
+        uv run dvc metrics diff --md {{.CLI_ARGS}}
