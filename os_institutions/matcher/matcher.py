@@ -1,4 +1,3 @@
-import pickle
 from dataclasses import dataclass, fields
 
 from os_normalizer.institution import normalize_school_name
@@ -10,6 +9,8 @@ from os_normalizer.uri import (
     get_full_url,
     repair_url,
 )
+
+from os_institutions.matcher import format
 
 
 @dataclass
@@ -48,8 +49,7 @@ class Institution:
 class InstitutionMatcher:
     @classmethod
     def load(cls, src: str):
-        with open(src, "rb") as fh:
-            return cls(pickle.load(fh))
+        return cls(format.load(src))
 
     def __init__(self, table: dict):
         self.lookup_table = table.get("lookup", {})

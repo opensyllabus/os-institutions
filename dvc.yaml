@@ -105,10 +105,11 @@ stages:
     cmd: python -m os_institutions.matcher.build
     deps:
       - os_institutions/matcher/build.py
+      - os_institutions/matcher/format.py
       - uv.lock
       - artifacts/dataset/institutions.parquet
     outs:
-      - artifacts/matcher/matcher.pickle
+      - artifacts/matcher/matcher.json.gz
     metrics:
       - metrics/matcher.json:
           cache: false

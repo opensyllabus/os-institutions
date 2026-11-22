@@ -1,4 +1,3 @@
-import pickle
 from collections import Counter
 from functools import partial
 from itertools import chain
@@ -13,6 +12,7 @@ from os_normalizer.uri import get_domain_url, get_full_url
 from tqdm import tqdm
 
 from os_institutions import dataset, runs
+from os_institutions.matcher import format
 from os_institutions.paths import artifact_path
 
 STAGE = "matcher"
@@ -26,8 +26,7 @@ def read(path: Path | None = None):
     path = path or artifact_path(STAGE)
     logger.info(f"Loading {path}")
 
-    with open(path, "rb") as fh:
-        return pickle.load(fh)
+    return format.load(path)
 
 
 def normalize_urls(urls):
@@ -169,8 +168,7 @@ def main(
 
         output = artifact_path(STAGE)
         output.parent.mkdir(parents=True, exist_ok=True)
-        with open(output, "wb") as fh:
-            pickle.dump(table, fh)
+        format.save(table, output)
         logger.info(f"Wrote matcher to {output}")
         run.add_output(output)
 

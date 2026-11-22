@@ -1,9 +1,7 @@
-import pickle
-
 import pandas as pd
 from typer.testing import CliRunner
 
-from os_institutions.matcher import Institution
+from os_institutions.matcher import Institution, format
 from os_institutions.matcher.validate import app, read_input
 
 
@@ -21,8 +19,7 @@ def write_matcher(path):
         ],
         'lookup': {'example.edu': 0, 'other.edu': 1},
     }
-    with open(path, 'wb') as fh:
-        pickle.dump(table, fh)
+    format.save(table, path)
 
 
 def write_inputs(path):
@@ -58,7 +55,7 @@ def test_read_input_parquet(tmp_path):
 
 def test_main_writes_validation_csv(tmp_path):
     matcher, inputs, output = (
-        tmp_path / 'matcher.pickle',
+        tmp_path / 'matcher.json.gz',
         tmp_path / 'in.csv',
         tmp_path / 'out' / 'validation.csv',
     )
