@@ -1,0 +1,113 @@
+# The pipeline: IPEDS -> dataset; ror_dist -> ror -> dataset;
+# ror -> wikidata_dist -> wikidata -> dataset; ror -> wikipedia -> dataset;
+# dataset -> matcher. Run it with `task docker:repro`.
+#
+# Outputs stay local under artifacts/ (git-ignored) and there is no DVC
+# remote. Each stage also writes a run log under runs/ and its metrics to
+# metrics/<stage>.json; both are committed along with dvc.lock.
+#
+# ror_dist, wikidata_dist, wikipedia and ipeds fetch live data, so they run
+# only when their code or params change (see params.yaml).
+
+stages:
+  ror_dist:
+    cmd: python -m os_institutions.sources.ror_dist build
+    deps:
+      - os_institutions/sources/ror_dist.py
+    params:
+      - ror_dist.release
+    outs:
+      - artifacts/ror_dist/ror_dist.parquet
+    metrics:
+      - metrics/ror_dist.json:
+          cache: false
+
+  ror:
+    cmd: python -m os_institutions.sources.ror build
+    deps:
+      - os_institutions/sources/ror.py
+      - os_institutions/data/ror_extra_institutions.csv
+      - artifacts/ror_dist/ror_dist.parquet
+    outs:
+      - artifacts/ror/ror.parquet
+    metrics:
+      - metrics/ror.json:
+          cache: false
+
+  wikidata_dist:
+    cmd: python -m os_institutions.sources.wikidata_dist build
+    deps:
+      - os_institutions/sources/wikidata_dist.py
+      - artifacts/ror/ror.parquet
+    params:
+      - wikidata_dist.source
+      - wikidata_dist.snapshot
+    outs:
+      - artifacts/wikidata_dist/wikidata_dist.parquet
+    metrics:
+      - metrics/wikidata_dist.json:
+          cache: false
+
+  wikidata:
+    cmd: python -m os_institutions.sources.wikidata build
+    deps:
+      - os_institutions/sources/wikidata.py
+      - artifacts/wikidata_dist/wikidata_dist.parquet
+    outs:
+      - artifacts/wikidata/wikidata.parquet
+    metrics:
+      - metrics/wikidata.json:
+          cache: false
+
+  wikipedia:
+    cmd: python -m os_institutions.sources.wikipedia build
+    deps:
+      - os_institutions/sources/wikipedia.py
+      - artifacts/ror/ror.parquet
+    params:
+      - wikipedia.snapshot
+    outs:
+      - artifacts/wikipedia/wikipedia.parquet
+    metrics:
+      - metrics/wikipedia.json:
+          cache: false
+
+  ipeds:
+    cmd: python -m os_institutions.sources.ipeds build
+    deps:
+      - os_institutions/sources/ipeds.py
+    params:
+      - ipeds.year
+    outs:
+      - artifacts/ipeds/ipeds.parquet
+    metrics:
+      - metrics/ipeds.json:
+          cache: false
+
+  dataset:
+    cmd: python -m os_institutions.dataset build
+    deps:
+      - os_institutions/dataset.py
+      - os_institutions/schema_model.py
+      - os_institutions/data
+      - artifacts/ror/ror.parquet
+      - artifacts/wikidata/wikidata.parquet
+      - artifacts/wikipedia/wikipedia.parquet
+      - artifacts/ipeds/ipeds.parquet
+    outs:
+      - artifacts/dataset/institutions.parquet
+    metrics:
+      - metrics/dataset.json:
+          cache: false
+
+  matcher:
+    cmd: python -m os_institutions.matcher.build
+    deps:
+      - os_institutions/matcher/build.py
+      - os_institutions/normalizer
+      - artifacts/dataset/institutions.parquet
+    outs:
+      - artifacts/matcher/matcher.pickle
+    metrics:
+      - metrics/matcher.json:
+          cache: false
