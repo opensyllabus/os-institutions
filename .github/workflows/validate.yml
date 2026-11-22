@@ -124,10 +124,12 @@ jobs:
             gh pr comment "$PR" --body-file .private/comment.md
           fi
 
+          # .private/out is root-owned (written by the container), so stage copies elsewhere.
+          assets=$(mktemp -d)
           for f in summary.md summary.json validation.csv; do
-            cp ".private/out/$f" ".private/out/ci-validation__$f"
+            cp ".private/out/$f" "$assets/ci-validation__$f"
           done
-          gh release upload "pr-$PR" .private/out/ci-validation__* --clobber
+          gh release upload "pr-$PR" "$assets"/ci-validation__* --clobber
 
       - name: Remove the sample
         if: always()
