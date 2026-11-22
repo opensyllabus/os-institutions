@@ -34,11 +34,30 @@ def read_input(path: Path):
 
     The matcher expects missing values as None, not NaN.
     """
-    if path.suffix == ".parquet":
+    if path.is_dir() or path.suffix == ".parquet":
         return pd.read_parquet(path)
 
     df = pd.read_csv(path)
     return df.astype(object).where(df.notna(), None)
+
+
+def institutions_table(df):
+    """Count per matched institution, from rows with `institution`
+    (an Institution or None) and `count` columns, largest first."""
+    df = df.assign(
+        institution_id=df.institution.apply(lambda x: x._id if x else None)
+    )
+    institutions = (
+        df.groupby(df.institution_id)
+        .agg({"institution": "first", "count": sum})
+        .sort_values(["count"], ascending=False)
+    )
+    institutions = pd.json_normalize(
+        institutions.reset_index().apply(
+            lambda x: {"count": x["count"], **asdict(x.institution)}, axis=1
+        )
+    )
+    return institutions.head(10000)
 
 
 @app.command()
@@ -64,21 +83,7 @@ def main(
     df["institution"] = df.progress_apply(
         lambda x: match_institution(model, x), axis=1
     )
-    df["institution_id"] = df.institution.progress_apply(
-        lambda x: x._id if x else None
-    )  # noqa
-
-    institutions = (
-        df.groupby(df.institution_id)
-        .agg({"institution": "first", "count": sum})
-        .sort_values(["count"], ascending=False)
-    )
-    institutions = pd.json_normalize(
-        institutions.reset_index().progress_apply(
-            lambda x: {"count": x["count"], **asdict(x.institution)}, axis=1
-        )
-    )
-    institutions = institutions.head(10000)
+    institutions = institutions_table(df)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     institutions.to_csv(output, index=False)

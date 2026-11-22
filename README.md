@@ -246,3 +246,21 @@ docker run --rm -v $(pwd):/opt/os-institutions \
 | `domains_without_institution.csv` | `domain`, `home_url` |
 
 Empty cells are read as missing values and passed to the matcher as `None`.
+
+### Validation on pull requests
+
+[`validate.yml`](./.github/workflows/validate.yml) compares the PR's matcher
+with the latest release's on the private sample and posts the aggregates (match
+rate, institutions gained or lost, largest count changes) as a PR comment and
+as `ci-validation__*` assets on the `pr-<N>` pre-release. The sample is
+downloaded from S3 into the runner and deleted afterwards; nothing from it is
+written, and S3 is used nowhere else. The job needs the `pr-<N>` pre-release
+(`task pr:publish`) and these secrets: `VALIDATION_S3_URI` (the S3 prefix of
+the sample's parquet directory), `AWS_ACCESS_KEY_ID` and
+`AWS_SECRET_ACCESS_KEY` (read-only on that prefix), `OS_NORMALIZER_DEPLOY_KEY`,
+and optionally `AWS_REGION`. Without them the job reports "skipped" and
+passes. The same comparison runs locally on any sample:
+
+```sh
+task docker:compare -- --path .private/sample --old old.pickle --new new.pickle
+```

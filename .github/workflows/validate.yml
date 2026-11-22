@@ -1,0 +1,134 @@
+name: Validate
+
+# Compares the PR's matcher with the latest release's against the private
+# sample in S3, and reports aggregates only. This is the only place S3 is used.
+# Needs these secrets (org or repo level): VALIDATION_S3_URI (the S3 prefix of
+# the sample parquet directory), AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+# (read-only on that prefix), OS_NORMALIZER_DEPLOY_KEY, and optionally
+# AWS_REGION. Without them the job reports "skipped" and passes.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    # Fork PRs get no secrets.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment: validation
+    permissions:
+      contents: write # attach the results to the pr-<N> pre-release
+      pull-requests: write # the PR comment
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.pull_request.number }}
+      CONFIGURED: ${{ secrets.VALIDATION_S3_URI != '' && secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' && secrets.OS_NORMALIZER_DEPLOY_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Find the matchers to compare
+        id: find
+        run: |
+          skip() {
+            echo "go=false" >> "$GITHUB_OUTPUT"
+            echo "$1" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          }
+          [ "$CONFIGURED" = true ] || skip "skipped: secret not configured (VALIDATION_S3_URI, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, OS_NORMALIZER_DEPLOY_KEY)"
+
+          mkdir -p .private/old .private/new
+          if gh release view "pr-$PR" --json assets --jq '.assets[].name' | grep -q '^matcher'; then
+            gh release download "pr-$PR" --pattern 'matcher*' --dir .private/new
+          else
+            skip "skipped: no matcher on the pr-$PR pre-release; run 'task pr:publish' first"
+          fi
+
+          base=$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
+          if [ -n "$base" ]; then
+            gh release download "$base" --pattern 'matcher*' --dir .private/old
+          fi
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          echo "go=true" >> "$GITHUB_OUTPUT"
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        if: steps.find.outputs.go == 'true'
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Download the sample
+        if: steps.find.outputs.go == 'true'
+        env:
+          VALIDATION_S3_URI: ${{ secrets.VALIDATION_S3_URI }}
+        run: aws s3 sync --only-show-errors --no-progress "$VALIDATION_S3_URI" .private/sample
+
+      # Read-only deploy key for opensyllabus/os-normalizer. Drop this step and
+      # the `--ssh default` build flag once os-normalizer is public.
+      - uses: webfactory/ssh-agent@v0.9.0
+        if: steps.find.outputs.go == 'true'
+        with:
+          ssh-private-key: ${{ secrets.OS_NORMALIZER_DEPLOY_KEY }}
+      - uses: arduino/setup-task@v2
+        if: steps.find.outputs.go == 'true'
+        with:
+          version: 3.x
+          repo-token: ${{ github.token }}
+      - name: Build the image
+        if: steps.find.outputs.go == 'true'
+        run: task docker:build
+
+      - name: Compare the matchers
+        if: steps.find.outputs.go == 'true'
+        env:
+          TQDM_DISABLE: 1
+        run: |
+          set -euo pipefail
+          new=(.private/new/*)
+          old=(.private/old/*)
+          args=(--path .private/sample --new "${new[0]}" --output-dir .private/out)
+          if [ -e "${old[0]}" ]; then
+            args+=(--old "${old[0]}")
+          fi
+          task docker:compare -- "${args[@]}"
+
+      - name: Report
+        if: steps.find.outputs.go == 'true'
+        env:
+          BASE: ${{ steps.find.outputs.base }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          marker='<!-- os-institutions:validation -->'
+          if [ -n "$BASE" ]; then against="against \`$BASE\`"; else against="(no baseline release yet)"; fi
+          {
+            echo "$marker"
+            echo "**Validation against the private sample**, matcher from \`pr-$PR\` $against"
+            echo
+            cat .private/out/summary.md
+          } > .private/comment.md
+          cat .private/comment.md >> "$GITHUB_STEP_SUMMARY"
+
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq "[.[] | select(.body | contains(\"$marker\")) | .id] | first // empty")
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@.private/comment.md > /dev/null
+          else
+            gh pr comment "$PR" --body-file .private/comment.md
+          fi
+
+          for f in summary.md summary.json validation.csv; do
+            cp ".private/out/$f" ".private/out/ci-validation__$f"
+          done
+          gh release upload "pr-$PR" .private/out/ci-validation__* --clobber
+
+      - name: Remove the sample
+        if: always()
+        run: sudo rm -rf .private
