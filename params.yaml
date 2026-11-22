@@ -18,7 +18,7 @@ wikidata_dist:
   source: wdqs
   # Label of when Wikidata was queried. It does not change what is fetched;
   # bump it (for example to today's date) to make DVC re-run the stage.
-  snapshot: '2026-11-21'
+  snapshot: '2026-11-22'
 
 wikipedia:
   # Same as wikidata_dist.snapshot, for the Wikipedia API.
