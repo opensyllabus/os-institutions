@@ -1,26 +1,22 @@
 from functools import partial
 from operator import is_not
 from pathlib import Path
+from typing import NamedTuple
 
 import numpy as np
 import pandas as pd
 import pandera as pa
 import typer
-import wandb
 from loguru import logger
 from pandera.typing import DataFrame, Object, Series
 
-from os_institutions.paths import DATA_DIR
+from os_institutions import runs
+from os_institutions.paths import DATA_DIR, artifact_path
 from os_institutions.schema_model import Dataset
 from os_institutions.sources import ipeds, ror, wikidata, wikipedia
-from os_institutions.utils import (
-    log_info,
-    read_yaml,
-    wandb_artifact,
-    wandb_init,
-)
+from os_institutions.utils import read_yaml, write_parquet
 
-ARTIFACT = 'opensyllabus/institutions/institutions:latest'
+STAGE = 'dataset'
 
 app = typer.Typer()
 
@@ -52,36 +48,77 @@ class Schema(Dataset):
     urls: Series[Object]
 
 
-def read(name=ARTIFACT, use_artifact=False):
-    logger.info(f'Loading {name}')
-    return pd.read_parquet(wandb_artifact(name, use_artifact))
+def read(path: Path | None = None):
+    path = path or artifact_path(STAGE)
+    logger.info(f'Loading {path}')
+    return pd.read_parquet(path)
 
 
 @pa.check_types
-def load() -> DataFrame[Schema]:
-    return read(use_artifact=True)
+def load(path: Path | None = None) -> DataFrame[Schema]:
+    return read(path)
 
 
 @app.command()
-def csv(path: Path):
-    df = read()
+def csv(
+    path: Path,
+    input: Path | None = typer.Option(None, help='Parquet to read.'),
+):
+    df = read(input)
     df.to_csv(path)
     logger.info(f'Wrote {len(df)} rows to {path}')
 
 
 @app.command()
-def check():
-    df = read()
+def check(input: Path | None = typer.Option(None, help='Parquet to read.')):
+    df = read(input)
     df.info()
     Schema(df)
 
 
 @app.command()
-def build():
-    """Build institutions dataset based on GRID, IPEDS, and Wikidata."""
-    wandb_init(group='institutions')
+def build(
+    ror_input: Path | None = typer.Option(
+        None, '--ror', help='ROR parquet (default: the ror output).'
+    ),
+    wikidata_input: Path | None = typer.Option(
+        None,
+        '--wikidata',
+        help='Wikidata parquet (default: the wikidata output).',
+    ),
+    wikipedia_input: Path | None = typer.Option(
+        None,
+        '--wikipedia',
+        help='Wikipedia parquet (default: the wikipedia output).',
+    ),
+    ipeds_input: Path | None = typer.Option(
+        None, '--ipeds', help='IPEDS parquet (default: the ipeds output).'
+    ),
+):
+    """Build institutions dataset based on ROR, IPEDS, and Wikidata."""
+    inputs = Inputs(
+        ror=ror_input or artifact_path('ror'),
+        wikidata=wikidata_input or artifact_path('wikidata'),
+        wikipedia=wikipedia_input or artifact_path('wikipedia'),
+        ipeds=ipeds_input or artifact_path('ipeds'),
+    )
+    with runs.start(STAGE) as run:
+        for path in inputs:
+            run.add_input(path)
+        process(run, inputs)
 
-    df = get_canonical_dataset()
+
+class Inputs(NamedTuple):
+    """Local paths of the upstream stage outputs."""
+
+    ror: Path
+    wikidata: Path
+    wikipedia: Path
+    ipeds: Path
+
+
+def process(run, inputs):
+    df = get_canonical_dataset(inputs)
 
     # Blacklist by IDs.
     for path in sorted((DATA_DIR / 'blacklists').glob('*.csv')):
@@ -155,12 +192,11 @@ def build():
     df['_id'] = df.index + 1
     df = df.convert_dtypes()
 
-    log_info(df)
+    run.log_info(df)
 
-    artifact = wandb.Artifact(type='dataset', name='institutions')
-    with artifact.new_file('institutions.parquet', 'wb') as fh:
-        df.to_parquet(fh)
-    wandb.log_artifact(artifact)
+    output = artifact_path(STAGE)
+    write_parquet(df, output)
+    run.add_output(output)
 
 
 def merge_extra_unitids(df):
@@ -173,12 +209,12 @@ def merge_extra_unitids(df):
     return df
 
 
-def merge_wikidata(df):
+def merge_wikidata(df, path=None):
     logger.info(len(df))
 
     df = pd.merge(
         df,
-        wikidata.load(),
+        wikidata.load(path),
         left_on='ror_id',
         right_on='wikidata_ror_id',
         how='left',
@@ -189,12 +225,12 @@ def merge_wikidata(df):
     return df
 
 
-def merge_wikipedia(df):
+def merge_wikipedia(df, path=None):
     logger.info(len(df))
 
     df = pd.merge(
         df,
-        wikipedia.load().drop(columns=['wikipedia_url']),
+        wikipedia.load(path).drop(columns=['wikipedia_url']),
         left_on='ror_id',
         right_on='wikipedia_ror_id',
         how='left',
@@ -204,7 +240,7 @@ def merge_wikipedia(df):
     return df
 
 
-def merge_ipeds(df):
+def merge_ipeds(df, path=None):
     logger.info(len(df))
 
     is_ipeds = df['unitid'].notna()
@@ -212,7 +248,7 @@ def merge_ipeds(df):
     df_non_ipeds = df[~is_ipeds]
 
     df = pd.merge(
-        ipeds.load(),
+        ipeds.load(path),
         df_ipeds,
         left_on='ipeds_unitid',
         right_on='unitid',
@@ -226,17 +262,17 @@ def merge_ipeds(df):
     return df
 
 
-def get_canonical_dataset():
+def get_canonical_dataset(inputs):
     """Build a canonical dataset by merging ROR, IPEDS, and Wikidata."""
-    df = ror.load()
+    df = ror.load(inputs.ror)
     # Legacy identifier, kept for backwards compatibility. Sourced directly
     # from ROR's own provenance data, not used as a join/lookup key here.
     df['grid_id'] = df['ror_grid_id']
 
     df = merge_extra_unitids(df)
-    df = merge_wikidata(df)
-    df = merge_wikipedia(df)
-    df = merge_ipeds(df)
+    df = merge_wikidata(df, inputs.wikidata)
+    df = merge_wikipedia(df, inputs.wikipedia)
+    df = merge_ipeds(df, inputs.ipeds)
 
     df = df.reset_index(drop=True)
     df = df.convert_dtypes()
@@ -252,7 +288,9 @@ def combine_url_lists(l1, l2):
     elif l2 is pd.NA:
         return l1
     else:
-        return list(set(l1 + l2))
+        # Keep first-seen order: a set would reorder with the per-process
+        # string hash seed, so a rebuild would not reproduce the same file.
+        return list(dict.fromkeys(l1 + l2))
 
 
 def get_extra_match_urls(df):

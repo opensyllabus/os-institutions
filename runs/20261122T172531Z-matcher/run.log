@@ -1,0 +1,4 @@
+2026-11-22 17:25:31.558 | INFO     | os_institutions.runs:start:236 - Starting matcher run in runs/20261122T172531Z-matcher
+2026-11-22 17:25:31.582 | INFO     | os_institutions.dataset:read:53 - Loading artifacts/dataset/institutions.parquet
+2026-11-22 17:25:32.217 | INFO     | __main__:main:163 - Building institution lookup table
+2026-11-22 17:25:54.221 | INFO     | __main__:main:174 - Wrote matcher to artifacts/matcher/matcher.pickle

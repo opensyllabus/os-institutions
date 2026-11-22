@@ -4,10 +4,6 @@ Educational &amp; Research institutions dataset based on ROR, IPEDs, and Wikidat
 This repository holds the pipeline that builds the institutions dataset and the
 institution matcher built on top of it.
 
-> **Status:** initial import. Weights & Biases (W&B) is still used for
-> artifact storage and run tracking, and is planned to be removed (see the
-> `TODO(W&B removal in PR #2)` markers below).
-
 ## Layout
 
 | Path | Contents |
@@ -19,6 +15,10 @@ institution matcher built on top of it.
 | `os_institutions/matcher/` | Institution matcher: build, validate, and runtime lookup |
 | `os_institutions/normalizer/` | URL and school-name normalization used by the matcher |
 | `os_institutions/map_null_institutions.py` | Helper to expand the `*_match_urls.yml` files |
+| `os_institutions/runs.py` | Per-run logs written by every pipeline stage |
+| `dvc.yaml`, `params.yaml`, `dvc.lock` | The DVC pipeline, its parameters, and the lock of the last run |
+| `runs/`, `metrics/` | Committed run logs and per-stage metrics |
+| `artifacts/` | Stage outputs (local only, git-ignored) |
 | `tests/` | Unit tests (mirrors the package layout) |
 
 ## Development
@@ -32,27 +32,49 @@ task docker:lint    # ruff check + ruff format --check
 task docker:bash    # interactive shell
 ```
 
-Tests that load the matcher (`tests/matcher/test_match.py`) need the private
-W&B matcher artifact and are skipped unless `WANDB_API_KEY` is set (or the
-artifact is already cached under `artifacts/`).
-Pass the key through from the host environment:
-
-```sh
-WANDB_API_KEY=... task docker:test
-```
+Tests that load the matcher (`tests/matcher/test_match.py`) use
+`artifacts/matcher/matcher.pickle`, which is built by the `matcher` stage and
+never committed. They are skipped when it is absent, as in CI.
 
 ## Institutions dataset
 
 Catalog of institutions based on IPEDS, ROR, and Wikidata.
 
-### Building a dataset
+### The pipeline
 
-Once you make changes, you can rebuild any of the datasets by running the
-module with the `build` argument, for example:
+The stages are described in [`dvc.yaml`](./dvc.yaml) and run with
+[DVC](https://dvc.org). DVC is a command-line tool installed in the Docker
+image; the library never imports it, and there is no DVC remote. Everything
+below runs in Docker through the tasks:
 
 ```sh
-python -m os_institutions.dataset build
-python -m os_institutions.sources.ror build
+task docker:repro                  # run every stage whose inputs changed
+task docker:repro -- dataset       # one stage and what it depends on
+task docker:repro -- --single-item dataset   # only that stage
+task docker:dag                    # show the DAG
+task docker:metrics                # compare stage metrics with git HEAD
+```
+
+DVC needs git, so run it from a clone (inside a `git worktree`, the main
+repository's `.git` also has to be mounted into the container).
+
+Quick start to refresh the data:
+
+1. Bump the source pins in [`params.yaml`](./params.yaml): the ROR release
+   (`ror_dist.release`), the IPEDS year (`ipeds.year`), or a
+   `snapshot` label to re-query Wikidata or Wikipedia.
+2. `task docker:repro`. Only the stages downstream of what changed run. The
+   live-fetch stages (`ror_dist`, `wikidata_dist`, `wikipedia`, `ipeds`) need
+   network access, and `wikidata_dist` and `wikipedia` take hours.
+3. `task docker:metrics` to see how the row counts moved, then commit
+   `params.yaml`, `dvc.lock`, `metrics/` and the new `runs/` directories.
+
+A stage can also be run on its own, with `--input` overriding the default
+upstream output:
+
+```sh
+python -m os_institutions.sources.ror build --input path/to/ror_dist.parquet
+python -m os_institutions.dataset build --ror path/to/ror.parquet
 ```
 
 If the build is successful, you can pass it through Pandera checks by running
@@ -64,12 +86,52 @@ python -m os_institutions.dataset check
 
 The same workflow applies to all pipelines.
 
+### What is committed and what is local
+
+| Path | Where |
+|---|---|
+| `dvc.yaml`, `params.yaml`, `dvc.lock` | git |
+| `runs/<UTC timestamp>-<stage>/` (`run.log`, `run.json`, `summary.json`) | git |
+| `metrics/<stage>.json` | git |
+| `artifacts/<stage>/*` (parquet files, `matcher.pickle`) | local only, git-ignored |
+| `.dvc/cache` | local only |
+
+Each stage logs to `runs/<UTC timestamp>-<stage>/`. `run.json` records the
+git commit and whether the checkout was dirty, the Python and key package
+versions, the params used, the sha256 of the inputs and outputs, and which
+version of the source was used (ROR release file, IPEDS year, ...).
+`summary.json` has the rows and columns of the output, and is copied to
+`metrics/<stage>.json`. Nothing environment-specific is recorded: no e-mail
+addresses, home or absolute paths, git remotes, or environment variables.
+
+The `runs/` directories currently committed are an offline parity check, not
+a real rebuild: only the `dataset` and `matcher` stages were run, from
+upstream parquets seeded out of the previous (v28) export, with
+`dvc repro -s <stage>`. Their `dvc.lock` entries cover those two stages only.
+The first full `dvc repro` replaces them with real runs.
+
+Set `OS_INSTITUTIONS_ARTIFACTS_DIR` to keep the outputs somewhere other than
+`./artifacts`. DVC is configured with `cache.type hardlink,symlink`, so the
+outputs are hardlinks into `.dvc/cache` and take no extra disk space.
+Hardlinks work on a Docker bind mount as long as the cache and `artifacts/`
+are on the same mount (as they are here). If DVC falls back to symlinks, they
+point into the container's `/opt/os-institutions` and dangle on the host.
+
 ### Mapping null institutions
 
 [`map_null_institutions.py`](./os_institutions/map_null_institutions.py) can
 be used to expand the [`_match_urls.yml` files](./os_institutions/data/).
 If desired, that job should be run before the
-[final institution dataset](./os_institutions/dataset.py) build.
+[final institution dataset](./os_institutions/dataset.py) build. It reads a
+local CSV of domains without an institution (see
+[Private data](#private-data)):
+
+```sh
+python -m os_institutions.map_null_institutions --domains <csv>
+```
+
+The extended files are written next to the originals as `*.yml.new`, or to
+`--out-dir`.
 
 Because of the way `map_null_institutions.py` works, it is possible to build
 the institution dataset, [build the matcher](#institution-matcher), and then
@@ -80,14 +142,14 @@ more matching conditions to provision on.
 
 ### Working with a dataset
 
-`read()` is a quick way to use a dataset in a shell or notebook without
-initializing a W&B run.
-<!-- TODO(W&B removal in PR #2) -->
+`read()` is a quick way to use a dataset in a shell or notebook: it reads
+the local parquet (by default the stage's output under `artifacts/`, or the
+path you pass) with no checks and no run log.
 
 On the other hand, `load()` is the best way to use a dataset during production
 runs when you want to ensure that the dataset passes its Pandera checks.
 
-### Artifact dependencies
+### Stage dependencies
 
 ```mermaid
   graph TD;
@@ -118,20 +180,18 @@ Rows that are dropped from the dataset at build time are documented in
 
 ## Institution matcher
 
-### Build, validate, and deploy flow
+### Build and validate flow
 
-1. Build a new matcher table from the latest institution dataset:
+1. Build a new matcher table from the latest institution dataset. This is the
+   `matcher` stage, so `task docker:repro` does it, or by hand:
 
    ```sh
    python -m os_institutions.matcher.build
    ```
 
-2. Update the deploy version (`ARTIFACT_NAME`) in
-   [`os_institutions/matcher/__init__.py`](./os_institutions/matcher/__init__.py),
-   currently `opensyllabus/institutions/matcher:v28`.
-   <!-- TODO(W&B removal in PR #2): the matcher artifact moves off W&B. -->
+   The matcher is written to `artifacts/matcher/matcher.pickle`.
 
-3. Validate the new matcher:
+2. Validate the new matcher:
 
    a. Against one-off institutions
       ([`matcher/data/qa.yml`](./os_institutions/matcher/data/qa.yml)):
@@ -140,17 +200,40 @@ Rows that are dropped from the dataset at build time are documented in
       python -m os_institutions.matcher.validate qa
       ```
 
-   b. Against a dataset of real-world institution inputs (parquet with `url`,
-      `source_url`, `email`, `school_name`, and `count` columns). There is no
-      default dataset; pass its location explicitly:
+   b. Against a dataset of real-world institution inputs (a local parquet or
+      CSV with `url`, `source_url`, `email`, `school_name`, and `count`
+      columns). There is no default dataset; pass its path explicitly:
 
       ```sh
-      python -m os_institutions.matcher.validate main --path <path-or-url>
+      python -m os_institutions.matcher.validate main --path <parquet-or-csv>
       ```
 
-4. Inspect the generated `validation.csv` / `institution.csv` on W&B to
-   investigate potential issues. <!-- TODO(W&B removal in PR #2) -->
+3. Inspect the generated `artifacts/validation/validation.csv` (or the
+   `--output` path) to investigate potential issues.
 
-5. Consider re-running
+4. Consider re-running
    [`map_null_institutions.py`](./os_institutions/map_null_institutions.py)
    (see [Mapping null institutions](#mapping-null-institutions)).
+
+Both tools take `--matcher` to use a pickle other than the default.
+
+### Private data
+
+The validation input and the domains CSV come from private syllabus metadata,
+so they are never committed to this repository. Keep them outside the working
+tree, for example in `~/.os-institutions/private/`, and mount that directory
+read-only into the container:
+
+```sh
+docker run --rm -v $(pwd):/opt/os-institutions \
+  -v ~/.os-institutions/private:/private-data:ro os_institutions \
+  python -m os_institutions.matcher.validate main \
+  --path /private-data/validation_input.csv
+```
+
+| File | Columns |
+|---|---|
+| `validation_input.csv` | `url`, `source_url`, `email`, `school_name`, `count` |
+| `domains_without_institution.csv` | `domain`, `home_url` |
+
+Empty cells are read as missing values and passed to the matcher as `None`.

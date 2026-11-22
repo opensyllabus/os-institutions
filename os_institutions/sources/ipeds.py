@@ -3,20 +3,18 @@ from pathlib import Path
 import pandas as pd
 import pandera as pa
 import typer
-import wandb
 from loguru import logger
 from pandera.typing import DataFrame, Object, Series
 
+from os_institutions import params, runs
 from os_institutions.normalizer.uri import repair_scheme
+from os_institutions.paths import artifact_path
 from os_institutions.schema_model import IPEDS
-from os_institutions.utils import (
-    download_zip_file,
-    log_info,
-    wandb_artifact,
-    wandb_init,
-)
+from os_institutions.utils import download_zip_file, write_parquet
 
-ARTIFACT = 'opensyllabus/institutions/ipeds:latest'
+STAGE = 'ipeds'
+
+DEFAULTS = {'year': 2024}
 
 app = typer.Typer()
 
@@ -38,45 +36,59 @@ class Schema(IPEDS):
     ipeds_efytotlt: Series[pd.Int64Dtype] = pa.Field(nullable=True)
 
 
-def read(name=ARTIFACT, use_artifact=False):
-    logger.info(f'Loading {name}')
-    return pd.read_parquet(wandb_artifact(name, use_artifact))
+def read(path: Path | None = None):
+    path = path or artifact_path(STAGE)
+    logger.info(f'Loading {path}')
+    return pd.read_parquet(path)
 
 
 @pa.check_types
-def load() -> DataFrame[Schema]:
-    return read(use_artifact=True)
+def load(path: Path | None = None) -> DataFrame[Schema]:
+    return read(path)
 
 
 @app.command()
-def csv(path: Path):
-    df = read()
+def csv(
+    path: Path,
+    input: Path | None = typer.Option(None, help='Parquet to read.'),
+):
+    df = read(input)
     df.to_csv(path)
     logger.info(f'Wrote {len(df)} rows to {path}')
 
 
 @app.command()
-def check():
-    df = read()
+def check(input: Path | None = typer.Option(None, help='Parquet to read.')):
+    df = read(input)
     df.info()
     Schema(df)
 
 
 @app.command()
-def build():
+def build(
+    year: int | None = typer.Option(None, help='IPEDS data year.'),
+):
     """IPEDS provides multiple CSV files for different data files.
     Therefore, they are loaded separately and merged on UNITID.
     """
+    p = params.resolve(STAGE, DEFAULTS, year=year)
+    with runs.start(STAGE, params=p) as run:
+        run.set_source(
+            year=p['year'],
+            files=[f'HD{p["year"]}.zip', f'EFFY{p["year"]}.zip'],
+        )
+        process(run, p['year'])
+
+
+def process(run, year):
     # There might be multiple rows representing the same school in IPEDS
     # because of EFFY data, which is broken out into rows by level:
     # '4' for EFFY data on graduate students, '2' for EFFY data
     # on undergraduate students, '1' for total students.  Since total
     # students is what we're interested in, filter for that, also allowing
     # null values.
-    wandb_init(group='ipeds')
-
-    hd = get_hd()
-    effy = get_effy()
+    hd = get_hd(year)
+    effy = get_effy(year)
 
     df = pd.merge(hd, effy, how='left', on='UNITID')
     df = df[
@@ -114,16 +126,15 @@ def build():
     df = df.add_prefix('ipeds_')
     df = df.convert_dtypes()
 
-    log_info(df)
+    run.log_info(df)
 
-    artifact = wandb.Artifact('ipeds', type='dataset')
-    with artifact.new_file('ipeds.parquet', 'wb') as fh:
-        df.to_parquet(fh)
-    wandb.log_artifact(artifact)
+    output = artifact_path(STAGE)
+    write_parquet(df, output)
+    run.add_output(output)
 
 
-def get_hd():
-    file_url = 'https://nces.ed.gov/ipeds/datacenter/data/HD2024.zip'
+def get_hd(year):
+    file_url = f'https://nces.ed.gov/ipeds/datacenter/data/HD{year}.zip'
     zip_file = download_zip_file(file_url)
     file_name = zip_file.namelist()[0]
 
@@ -140,8 +151,8 @@ def get_hd():
     return df.convert_dtypes()
 
 
-def get_effy():
-    file_url = 'https://nces.ed.gov/ipeds/datacenter/data/EFFY2024.zip'
+def get_effy(year):
+    file_url = f'https://nces.ed.gov/ipeds/datacenter/data/EFFY{year}.zip'
     zip_file = download_zip_file(file_url)
     file_name = zip_file.namelist()[0]
 

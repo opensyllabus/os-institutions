@@ -4,16 +4,17 @@ import numpy as np
 import pandas as pd
 import pandera as pa
 import typer
-import wandb
 from loguru import logger
 from pandera.typing import DataFrame, Object, Series
 from tqdm import tqdm
 
+from os_institutions import runs
+from os_institutions.paths import artifact_path
 from os_institutions.schema_model import Wikidata
 from os_institutions.sources import wikidata_dist
-from os_institutions.utils import log_info, wandb_artifact, wandb_init
+from os_institutions.utils import write_parquet
 
-ARTIFACT = "opensyllabus/institutions/wikidata:latest"
+STAGE = "wikidata"
 
 app = typer.Typer()
 
@@ -34,35 +35,50 @@ class Schema(Wikidata):
     wikidata_lng: Series[pd.Float64Dtype] = pa.Field(nullable=True)
 
 
-def read(name=ARTIFACT, use_artifact=False):
-    logger.info(f"Loading {name}")
-    return pd.read_parquet(wandb_artifact(name, use_artifact))
+def read(path: Path | None = None):
+    path = path or artifact_path(STAGE)
+    logger.info(f"Loading {path}")
+    return pd.read_parquet(path)
 
 
 @pa.check_types
-def load() -> DataFrame[Schema]:
-    return read(use_artifact=True)
+def load(path: Path | None = None) -> DataFrame[Schema]:
+    return read(path)
 
 
 @app.command()
-def csv(path: Path):
-    df = read()
+def csv(
+    path: Path,
+    input: Path | None = typer.Option(None, help="Parquet to read."),
+):
+    df = read(input)
     df.to_csv(path)
     logger.info(f"Wrote {len(df)} rows to {path}")
 
 
 @app.command()
-def check():
-    df = read()
+def check(input: Path | None = typer.Option(None, help="Parquet to read.")):
+    df = read(input)
     df.info()
     Schema(df)
 
 
 @app.command()
-def build():
-    wandb_init(group="wikidata")
+def build(
+    input: Path | None = typer.Option(
+        None,
+        help="Wikidata query results parquet "
+        "(default: the wikidata_dist output).",
+    ),
+):
+    input = input or artifact_path("wikidata_dist")
+    with runs.start(STAGE) as run:
+        run.add_input(input)
+        process(run, input)
 
-    df = wikidata_dist.load()
+
+def process(run, input):
+    df = wikidata_dist.load(input)
 
     tqdm.pandas(desc="Parsing results")
     df = df.results.progress_apply(parse_results)
@@ -92,12 +108,11 @@ def build():
     df = df.add_prefix("wikidata_")
     df = df.convert_dtypes()
 
-    log_info(df)
+    run.log_info(df)
 
-    artifact = wandb.Artifact(type="dataset", name="wikidata")
-    with artifact.new_file("wikidata.parquet", "wb") as fh:
-        df.to_parquet(fh)
-    wandb.log_artifact(artifact)
+    output = artifact_path(STAGE)
+    write_parquet(df, output)
+    run.add_output(output)
 
 
 def apply_hotfix(df):

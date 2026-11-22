@@ -23,19 +23,17 @@ tasks:
         docker run -it --rm
         --platform linux/amd64
         -v $(pwd):/opt/os-institutions
-        -e WANDB_API_KEY
         {{.CLI_ARGS}}
         os_institutions
         bash
 
   docker:test:
-    desc: Run tests (tests needing the W&B matcher skip without WANDB_API_KEY)
+    desc: Run tests (tests needing the built matcher skip when it is absent)
     cmds:
       - >
         docker run --rm
         --platform linux/amd64
         -v $(pwd):/opt/os-institutions
-        -e WANDB_API_KEY
         os_institutions
         /bin/sh -c 'pytest {{.CLI_ARGS}}'
 
@@ -48,3 +46,33 @@ tasks:
         -v $(pwd):/opt/os-institutions
         os_institutions
         /bin/sh -c 'ruff check {{.CLI_ARGS}} && ruff format --check {{.CLI_ARGS}}'
+
+  docker:repro:
+    desc: Run the DVC pipeline (dvc repro; pass stage names or flags after --)
+    cmds:
+      - >
+        docker run --rm
+        --platform linux/amd64
+        -v $(pwd):/opt/os-institutions
+        os_institutions
+        /bin/sh -c 'dvc repro {{.CLI_ARGS}}'
+
+  docker:dag:
+    desc: Show the pipeline DAG
+    cmds:
+      - >
+        docker run --rm
+        --platform linux/amd64
+        -v $(pwd):/opt/os-institutions
+        os_institutions
+        /bin/sh -c 'dvc dag {{.CLI_ARGS}}'
+
+  docker:metrics:
+    desc: Compare stage metrics with git HEAD as markdown (dvc metrics diff)
+    cmds:
+      - >
+        docker run --rm
+        --platform linux/amd64
+        -v $(pwd):/opt/os-institutions
+        os_institutions
+        /bin/sh -c 'dvc metrics diff --md {{.CLI_ARGS}}'

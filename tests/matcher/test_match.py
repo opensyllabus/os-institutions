@@ -1,20 +1,16 @@
-import os
-
 import pytest
 
-from os_institutions.matcher import artifact, load_model
+from os_institutions.matcher import load_model, model_path
 
 
 @pytest.fixture(scope='module')
 def matcher():
-    # The matcher is a private W&B artifact. Skip when it is neither cached
-    # locally nor downloadable (TODO(W&B removal in PR #2)).
-    if (
-        not os.environ.get('WANDB_API_KEY')
-        and not artifact.local_path.exists()
-    ):
-        pytest.skip('matcher artifact needs WANDB_API_KEY (or a local cache)')
-    return load_model()
+    # The matcher is built by the `matcher` stage (see dvc.yaml) and is not
+    # committed. Skip when it has not been built locally, as in CI.
+    path = model_path()
+    if not path.exists():
+        pytest.skip(f'no matcher at {path} (run `dvc repro matcher`)')
+    return load_model(path)
 
 
 @pytest.mark.parametrize(

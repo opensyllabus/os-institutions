@@ -223,12 +223,12 @@ __marimo__/
 .streamlit/secrets.toml
 
 # --- os-institutions ---
-# Downloaded/cached artifacts (matcher pickle, datasets, raw ROR dumps).
+# Stage outputs (datasets, matcher pickle). Local only; see dvc.yaml.
 artifacts/
-wandb/
 # Local scratch space, never committed.
 .private/
 # Raw ROR distribution files.
 *-ror-data.json
 *-ror-data.zip
-# Note: runs/ is intentionally NOT ignored (run logs are committed).
+# Per-run logs ARE committed, even though *.log is ignored above.
+!runs/**/run.log

@@ -1,0 +1,25 @@
+# Parameters of the pipeline stages (see dvc.yaml). DVC re-runs a stage when
+# one of its params changes, and the stages read this file directly, so a
+# stage behaves the same under `dvc repro` and when run by hand.
+#
+# Bump a value here to refresh a live-fetch stage, then `dvc repro`.
+
+ror_dist:
+  # ROR data release on Zenodo, such as "v2.16", or "latest" for the most
+  # recent. Pinning keeps a rebuild from silently picking up a new release.
+  release: v2.16
+
+ipeds:
+  # IPEDS data year (HD<year>.zip and EFFY<year>.zip).
+  year: 2024
+
+wikidata_dist:
+  # wdqs (live, throttled) or qlever (weekly mirror).
+  source: wdqs
+  # Label of when Wikidata was queried. It does not change what is fetched;
+  # bump it (for example to today's date) to make DVC re-run the stage.
+  snapshot: '2026-11-21'
+
+wikipedia:
+  # Same as wikidata_dist.snapshot, for the Wikipedia API.
+  snapshot: '2026-11-22'

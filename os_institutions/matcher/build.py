@@ -3,29 +3,30 @@ from collections import Counter
 from functools import partial
 from itertools import chain
 from operator import is_not
+from pathlib import Path
 
 import pandas as pd
-import wandb
+import typer
 from loguru import logger
 from tqdm import tqdm
 
-from os_institutions import dataset
-from os_institutions.matcher import ARTIFACT_NAME
+from os_institutions import dataset, runs
 from os_institutions.normalizer.institution import normalize_school_name
 from os_institutions.normalizer.uri import get_domain_url, get_full_url
-from os_institutions.utils import wandb_artifact, wandb_init
+from os_institutions.paths import artifact_path
+
+STAGE = "matcher"
 
 not_na = partial(is_not, pd.NA)
 not_none = partial(is_not, None)
 not_empty = partial(is_not, "")
 
 
-def read(name=ARTIFACT_NAME, use_artifact=False):
-    logger.info(f"Loading {name}")
+def read(path: Path | None = None):
+    path = path or artifact_path(STAGE)
+    logger.info(f"Loading {path}")
 
-    file = wandb_artifact(name, use_artifact) + "/matcher.pickle"
-
-    with open(file, "rb") as fh:
+    with open(path, "rb") as fh:
         return pickle.load(fh)
 
 
@@ -149,19 +150,30 @@ def build_table(df):
     return {"institutions": institutions_array, "lookup": lookup_table}
 
 
-def main():
-    wandb_init(group="matcher")
+def main(
+    input: Path | None = typer.Option(
+        None, help="Institutions parquet (default: the dataset output)."
+    ),
+):
+    input = input or artifact_path("dataset")
+    with runs.start(STAGE) as run:
+        run.add_input(input)
+        df = dataset.load(input)
 
-    df = dataset.load()
+        logger.info("Building institution lookup table")
+        table = build_table(df)
+        run.summarize(
+            institutions=len(table["institutions"]),
+            references=len(table["lookup"]),
+        )
 
-    logger.info("Building institution lookup table")
-    table = build_table(df)
-
-    artifact = wandb.Artifact(type="model", name="matcher")
-    with artifact.new_file("matcher.pickle", "wb") as fh:
-        pickle.dump(table, fh)
-    wandb.log_artifact(artifact)
+        output = artifact_path(STAGE)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with open(output, "wb") as fh:
+            pickle.dump(table, fh)
+        logger.info(f"Wrote matcher to {output}")
+        run.add_output(output)
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

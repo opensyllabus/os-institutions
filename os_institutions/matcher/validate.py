@@ -4,25 +4,23 @@ from pprint import pformat
 
 import pandas as pd
 import typer
-import wandb
 import yaml
 from loguru import logger
 from tqdm import tqdm
 
-from os_institutions.matcher import (
-    ARTIFACT_NAME,
-    download_data,
-    load_model,
-)
-from os_institutions.utils import wandb_init
+from os_institutions.matcher import load_model, model_path
+from os_institutions.paths import validation_path
 
 PATH_QA = Path(__file__).parent / "data" / "qa.yml"
 
 app = typer.Typer()
-matcher = load_model()
+
+MATCHER_OPTION = typer.Option(
+    None, help="Matcher pickle (default: the matcher output)."
+)
 
 
-def match_institution(x):
+def match_institution(matcher, x):
     return matcher(
         url=x.url,
         source_url=x.source_url,
@@ -31,18 +29,41 @@ def match_institution(x):
     )
 
 
+def read_input(path: Path):
+    """Read the institution inputs from a parquet or CSV file.
+
+    The matcher expects missing values as None, not NaN.
+    """
+    if path.suffix == ".parquet":
+        return pd.read_parquet(path)
+
+    df = pd.read_csv(path)
+    return df.astype(object).where(df.notna(), None)
+
+
 @app.command()
 def main(
-    path: str = typer.Option(
-        ..., help="Path or URL of the institution parquet to validate against."
+    path: Path = typer.Option(
+        ...,
+        help="Local parquet or CSV of institution inputs to validate "
+        "against, with url, source_url, email, school_name, and count "
+        "columns.",
     ),
+    output: Path | None = typer.Option(
+        None, help="Where to write the table (default: the validation path)."
+    ),
+    matcher: Path | None = MATCHER_OPTION,
 ):
-    wandb_init(group="validation", tags=["main"])
     tqdm.pandas()
+    output = output or validation_path()
+    matcher_path = matcher or model_path()
+    model = load_model(matcher_path)
 
-    logger.info(f"Using {ARTIFACT_NAME} matcher and {path} dataset.")
-    df = pd.read_parquet(path)
-    df["institution"] = df.progress_apply(match_institution, axis=1)
+    logger.info(f"Using {matcher_path} matcher and {path} dataset.")
+    df = read_input(path)
+    df["institution"] = df.progress_apply(
+        lambda x: match_institution(model, x), axis=1
+    )
     df["institution_id"] = df.institution.progress_apply(
         lambda x: x._id if x else None
     )  # noqa
@@ -59,22 +80,24 @@ def main(
     )
     institutions = institutions.head(10000)
 
-    artifact = wandb.Artifact("validation", type="dataset")
-    with artifact.new_file("validation.csv", "wb") as fh:
-        institutions.to_csv(fh, index=False)
-    wandb.log_artifact(artifact)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    institutions.to_csv(output, index=False)
+    logger.info(f"Wrote {len(institutions)} rows to {output}")
 
 
 @app.command()
-def qa():
-    wandb_init(group="validation", tags=["qa"])
+def qa(matcher: Path | None = MATCHER_OPTION):
     tqdm.pandas()
+    matcher_path = matcher or model_path()
+    model = load_model(matcher_path)
 
-    logger.info(f"Using {ARTIFACT_NAME} matcher.")
+    logger.info(f"Using {matcher_path} matcher.")
     with open(PATH_QA) as fh:
         df = pd.DataFrame(list(yaml.safe_load_all(fh)))
 
-    df["result"] = df.progress_apply(match_institution, axis=1)
+    df["result"] = df.progress_apply(
+        lambda x: match_institution(model, x), axis=1
+    )
 
     logger.info("institution is null & result is not null")
     logger.info(
@@ -92,11 +115,6 @@ def qa():
             )
         )
     )
-
-
-@app.command()
-def download():
-    download_data()
 
 
 if __name__ == "__main__":

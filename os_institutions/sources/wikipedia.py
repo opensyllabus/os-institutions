@@ -1,6 +1,7 @@
 import sys
 import time
 from collections import deque
+from functools import partial
 from multiprocessing import Pool
 from pathlib import Path
 
@@ -8,17 +9,22 @@ import pandas as pd
 import pandera as pa
 import requests
 import typer
-import wandb
 from addict import Dict
 from loguru import logger
 from pandera.typing import DataFrame, Series
 from tqdm import tqdm
 
+from os_institutions import params, runs
+from os_institutions.paths import artifact_path
 from os_institutions.schema_model import Wikipedia
 from os_institutions.sources import ror
-from os_institutions.utils import log_info, wandb_artifact, wandb_init
+from os_institutions.utils import write_parquet
 
-ARTIFACT = "opensyllabus/institutions/wikipedia:latest"
+STAGE = "wikipedia"
+
+# `snapshot` is a free-form label of when the live source was queried. It is
+# not used by the code: bump it in params.yaml to make DVC re-run the stage.
+DEFAULTS = {"api": "https://en.wikipedia.org/w/api.php", "snapshot": None}
 
 MAX_RETRIES = 10
 BACKOFF_BASE = 5
@@ -54,37 +60,53 @@ def apply_hotfixes(df):
     return df
 
 
-def read(name=ARTIFACT, use_artifact=False):
-    logger.info(f"Loading {name}")
-    df = pd.read_parquet(wandb_artifact(name, use_artifact))
+def read(path: Path | None = None):
+    path = path or artifact_path(STAGE)
+    logger.info(f"Loading {path}")
+    df = pd.read_parquet(path)
     df = apply_hotfixes(df)
     return df
 
 
 @pa.check_types
-def load() -> DataFrame[Schema]:
-    return read(use_artifact=True)
+def load(path: Path | None = None) -> DataFrame[Schema]:
+    return read(path)
 
 
 @app.command()
-def csv(path: Path):
-    df = read()
+def csv(
+    path: Path,
+    input: Path | None = typer.Option(None, help="Parquet to read."),
+):
+    df = read(input)
     df.to_csv(path)
     logger.info(f"Wrote {len(df)} rows to {path}")
 
 
 @app.command()
-def check():
-    df = read()
+def check(input: Path | None = typer.Option(None, help="Parquet to read.")):
+    df = read(input)
     df.info()
     Schema(df)
 
 
 @app.command()
-def build():
-    wandb_init(group="wikipedia")
+def build(
+    api: str | None = typer.Option(None, help="MediaWiki API URL."),
+    input: Path | None = typer.Option(
+        None, help="ROR parquet (default: the ror output)."
+    ),
+):
+    p = params.resolve(STAGE, DEFAULTS, api=api)
+    input = input or artifact_path("ror")
+    with runs.start(STAGE, params=p) as run:
+        run.set_source(api=p["api"])
+        run.add_input(input)
+        process(run, input, p["api"])
 
-    df = ror.load()
+
+def process(run, input, api):
+    df = ror.load(input)
     df = df.rename(columns={"ror_wikipedia_url": "wikipedia_url"})
     df = df[["ror_id", "wikipedia_url"]]
     df = df.dropna()
@@ -96,11 +118,11 @@ def build():
     n_cores = 1
     logger.info(f"Collecting Wikipedia with {n_cores} processes")
     with Pool(n_cores) as pool:
-        results = pool.imap(get_result, df.wikipedia_url)
+        results = pool.imap(partial(get_result, api=api), df.wikipedia_url)
         df["result"] = deque(tqdm(results, total=len(df.wikipedia_url)))
 
     check_coverage(df)
-    log_info(df)
+    run.log_info(df)
 
     # Due to null values in the JSON, pyarrow throws an error.
     # So, it must be normalized right away.
@@ -111,11 +133,11 @@ def build():
 
     res["ror_id"] = df.ror_id
     res = res.add_prefix("wikipedia_")
+    run.log_info(res)
 
-    artifact = wandb.Artifact(type="dataset", name="wikipedia")
-    with artifact.new_file("wikipedia.parquet", "wb") as fh:
-        res.to_parquet(fh)
-    wandb.log_artifact(artifact)
+    output = artifact_path(STAGE)
+    write_parquet(res, output)
+    run.add_output(output)
 
 
 def get_title(url):
