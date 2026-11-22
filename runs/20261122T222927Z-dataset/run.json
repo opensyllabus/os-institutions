@@ -1,0 +1,33 @@
+{
+  "duration_seconds": 4.3,
+  "error": null,
+  "finished_at": "2026-11-22T22:29:31+00:00",
+  "git": {
+    "dirty": false,
+    "sha": "efbc252b887cf866d6829d665c63b5083655858b"
+  },
+  "inputs": {
+    "artifacts/ipeds/ipeds.parquet": "d66efa11407749f2d9afe5a115cadff9709cb56ef3ccf0985bc690c2baeefd17",
+    "artifacts/ror/ror.parquet": "18850b4b7bf0883fd7b48d7839fcd64ce0ac2d6cf9f768d2711bdeaa442a7ddb",
+    "artifacts/wikidata/wikidata.parquet": "f4cd51daa1591b97d75c300a2046976ecc592fe60b72aefc2e57594cf5a6ec14",
+    "artifacts/wikipedia/wikipedia.parquet": "8eeeca8e109e9456e8149d588616a2c0b9e1ba68e0d6e29099b0235ea0c3de58"
+  },
+  "outputs": {
+    "artifacts/dataset/institutions.parquet": "2cf5690074cbae5b2d31c19c6654e91fe99db400797fad1b72f63d880a042c2d"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "os-institutions": "1.0.0",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.34.2"
+  },
+  "params": {},
+  "python": "3.10.22",
+  "source": {},
+  "stage": "dataset",
+  "started_at": "2026-11-22T22:29:27+00:00",
+  "status": "ok"
+}

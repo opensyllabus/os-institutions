@@ -1,0 +1,30 @@
+{
+  "duration_seconds": 0.7,
+  "error": null,
+  "finished_at": "2026-11-22T20:41:45+00:00",
+  "git": {
+    "dirty": false,
+    "sha": "efbc252b887cf866d6829d665c63b5083655858b"
+  },
+  "inputs": {
+    "artifacts/wikidata_dist/wikidata_dist.parquet": "edac7c0d619931ac82585a4d42c40f8a1202ee28fcf9e7f082f8f5602109b3ca"
+  },
+  "outputs": {
+    "artifacts/wikidata/wikidata.parquet": "f4cd51daa1591b97d75c300a2046976ecc592fe60b72aefc2e57594cf5a6ec14"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "os-institutions": "1.0.0",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.34.2"
+  },
+  "params": {},
+  "python": "3.10.22",
+  "source": {},
+  "stage": "wikidata",
+  "started_at": "2026-11-22T20:41:44+00:00",
+  "status": "ok"
+}

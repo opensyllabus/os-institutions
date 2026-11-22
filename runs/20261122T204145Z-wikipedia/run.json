@@ -1,0 +1,35 @@
+{
+  "duration_seconds": 6445.3,
+  "error": null,
+  "finished_at": "2026-11-22T22:29:11+00:00",
+  "git": {
+    "dirty": false,
+    "sha": "efbc252b887cf866d6829d665c63b5083655858b"
+  },
+  "inputs": {
+    "artifacts/ror/ror.parquet": "18850b4b7bf0883fd7b48d7839fcd64ce0ac2d6cf9f768d2711bdeaa442a7ddb"
+  },
+  "outputs": {
+    "artifacts/wikipedia/wikipedia.parquet": "8eeeca8e109e9456e8149d588616a2c0b9e1ba68e0d6e29099b0235ea0c3de58"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "os-institutions": "1.0.0",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.34.2"
+  },
+  "params": {
+    "api": "https://en.wikipedia.org/w/api.php",
+    "snapshot": "2026-11-22"
+  },
+  "python": "3.10.22",
+  "source": {
+    "api": "https://en.wikipedia.org/w/api.php"
+  },
+  "stage": "wikipedia",
+  "started_at": "2026-11-22T20:41:45+00:00",
+  "status": "ok"
+}
