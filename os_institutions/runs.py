@@ -49,14 +49,18 @@ LOG_FORMAT = (
 )
 
 EMAIL = re.compile(r'[\w.+-]+@[\w-]+(\.[\w-]+)+')
+S3_URI = re.compile(r's3://\S+')
+GIT_REMOTE = re.compile(r'git@[\w.-]+:\S+|https?://\S+\.git\b')
 
 
 def sanitize(text: str) -> str:
-    """Strip what must not be committed: working and home directories, and
-    e-mail addresses."""
+    """Strip what must not be committed: working and home directories, e-mail
+    addresses, S3 locations and git remotes."""
     for path, repl in ((Path.cwd().resolve(), '.'), (Path.home(), '~')):
         if str(path) not in ('/', '.'):
             text = text.replace(str(path), repl)
+    text = S3_URI.sub('<s3-uri>', text)
+    text = GIT_REMOTE.sub('<git-remote>', text)
     return EMAIL.sub('<email>', text)
 
 

@@ -1,0 +1,22 @@
+2026-11-21 22:06:00.530 | INFO     | os_parser.institutions.wikidata_dist:read:33 - Loading opensyllabus/institutions/wikidata-dist:latest
+Parsing results: 100%|██████████| 22477/22477 [00:00<00:00, 623621.60it/s]
+2026-11-21 22:06:07.000 | INFO     | os_parser.institutions.utils:log_info:42 - <class 'pandas.core.frame.DataFrame'>
+RangeIndex: 22477 entries, 0 to 22476
+Data columns (total 13 columns):
+ #   Column                Non-Null Count  Dtype
+---  ------                --------------  -----
+ 0   wikidata_grid_id      15286 non-null  string
+ 1   wikidata_description  19390 non-null  string
+ 2   wikidata_name         22477 non-null  string
+ 3   wikidata_ror_id       19846 non-null  string
+ 4   wikidata_url          18557 non-null  string
+ 5   wikidata_enrollment   4593 non-null   Int64
+ 6   wikidata_image        8093 non-null   string
+ 7   wikidata_logo         3830 non-null   string
+ 8   wikidata_unitid       2964 non-null   Int64
+ 9   wikidata_id           22477 non-null  string
+ 10  wikidata_labels       12753 non-null  object
+ 11  wikidata_lat          15262 non-null  Float64
+ 12  wikidata_lng          15262 non-null  Float64
+dtypes: Float64(2), Int64(2), object(1), string(8)
+memory usage: 2.3+ MB

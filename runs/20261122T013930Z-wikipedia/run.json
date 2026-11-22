@@ -1,0 +1,31 @@
+{
+  "args": [
+    "build"
+  ],
+  "artifact_created_at": "2026-11-22T03:21:22Z",
+  "duration_seconds": 6109,
+  "error": null,
+  "finished_at": "2026-11-22T03:21:19+00:00",
+  "inputs": {
+    "ror:v23/ror.parquet": "18850b4b7bf0883fd7b48d7839fcd64ce0ac2d6cf9f768d2711bdeaa442a7ddb"
+  },
+  "origin": "exported from W&B wikipedia:v16",
+  "outputs": {
+    "wikipedia:v16/wikipedia.parquet": "de1bbb51fbaa5a98b0639c6c1b7e698c9100c56f4f0ed8df8dbc2669b20a6ee5"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.31.0"
+  },
+  "params": {},
+  "program": "-m os_parser.institutions.wikipedia",
+  "python": "3.10.21",
+  "source": {},
+  "stage": "wikipedia",
+  "started_at": "2026-11-22T01:39:30+00:00",
+  "status": "ok"
+}

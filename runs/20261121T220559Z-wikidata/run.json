@@ -1,0 +1,31 @@
+{
+  "args": [
+    "build"
+  ],
+  "artifact_created_at": "2026-11-21T22:06:07Z",
+  "duration_seconds": 6,
+  "error": null,
+  "finished_at": "2026-11-21T22:06:05+00:00",
+  "inputs": {
+    "wikidata-dist:v10/wikidata-dist.parquet": "02283ce9ac89ea4d13efa9e9d423e2b3e4fc003f7699ed67a16269ee05369526"
+  },
+  "origin": "exported from W&B wikidata:v20",
+  "outputs": {
+    "wikidata:v20/wikidata.parquet": "3a6293ee8aa957297e970ba7461a31709ab5227e9a8a925ae4f8b91e8384b985"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.31.0"
+  },
+  "params": {},
+  "program": "-m os_parser.institutions.wikidata",
+  "python": "3.10.21",
+  "source": {},
+  "stage": "wikidata",
+  "started_at": "2026-11-21T22:05:59+00:00",
+  "status": "ok"
+}

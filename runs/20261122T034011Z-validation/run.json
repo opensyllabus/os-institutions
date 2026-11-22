@@ -1,0 +1,29 @@
+{
+  "args": [
+    "main"
+  ],
+  "artifact_created_at": "2026-11-22T03:40:35Z",
+  "duration_seconds": 22,
+  "error": null,
+  "finished_at": "2026-11-22T03:40:33+00:00",
+  "inputs": {},
+  "origin": "exported from W&B validation:v11",
+  "outputs": {
+    "validation:v11/validation.csv": "59f4d1983b44d1b27a29225446e49f8739e7e3921c561d702195dbe426ec3335"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.31.0"
+  },
+  "params": {},
+  "program": "-m os_parser.institution_matcher.validate",
+  "python": "3.10.21",
+  "source": {},
+  "stage": "validation",
+  "started_at": "2026-11-22T03:40:11+00:00",
+  "status": "ok"
+}

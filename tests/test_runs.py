@@ -135,14 +135,23 @@ def test_sanitize_strips_emails_and_paths(workdir, monkeypatch):
     home.mkdir(parents=True)
     monkeypatch.setenv('HOME', str(home))
 
-    text = f'mail jane.doe+x@example.edu from {home}/data and {workdir}/x'
+    text = (
+        f'mail jane.doe+x@example.edu from {home}/data and {workdir}/x '
+        'sample s3://private-bucket/sample.parquet '
+        'remote git@github.com:acme/private.git or https://github.com/acme/private.git'
+    )
     out = runs.sanitize(text)
 
     assert 'example.edu' not in out
     assert '<email>' in out
     assert str(home) not in out
     assert str(workdir) not in out
-    assert out.endswith('and ./x')
+    assert 'private-bucket' not in out
+    assert 'acme' not in out
+    assert '<s3-uri>' in out
+    assert out.count('<git-remote>') == 2
+    assert out.startswith('mail <email> from ')
+    assert ' and ./x ' in out
 
 
 def test_display_path_never_absolute(workdir, tmp_path_factory):

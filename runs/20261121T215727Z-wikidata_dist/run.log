@@ -1,0 +1,12 @@
+2026-11-21 21:57:28.688 | INFO     | os_parser.institutions.ror:read:39 - Loading opensyllabus/institutions/ror:latest
+2026-11-21 21:57:31.895 | INFO     | __main__:build:77 - Collecting 22477 Wikidata items in 450 batches with 2 processes
+100%|██████████| 450/450 [08:15<00:00,  1.10s/it]
+2026-11-21 22:05:47.148 | INFO     | os_parser.institutions.utils:log_info:42 - <class 'pandas.core.frame.DataFrame'>
+RangeIndex: 22477 entries, 0 to 22476
+Data columns (total 2 columns):
+ #   Column       Non-Null Count  Dtype
+---  ------       --------------  -----
+ 0   wikidata_id  22477 non-null  string
+ 1   results      22477 non-null  object
+dtypes: object(1), string(1)
+memory usage: 351.3+ KB

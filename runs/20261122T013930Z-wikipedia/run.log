@@ -1,0 +1,15 @@
+2026-11-22 01:39:32.299 | INFO     | os_parser.institutions.ror:read:39 - Loading opensyllabus/institutions/ror:latest
+2026-11-22 01:39:38.641 | INFO     | __main__:build:97 - Collecting Wikipedia with 1 processes
+100%|██████████| 15768/15768 [1:41:42<00:00,  2.58it/s]  
+2026-11-22 03:21:21.208 | INFO     | os_parser.institutions.utils:log_info:42 - <class 'pandas.core.frame.DataFrame'>
+RangeIndex: 15768 entries, 0 to 15767
+Data columns (total 3 columns):
+ #   Column         Non-Null Count  Dtype
+---  ------         --------------  -----
+ 0   ror_id         15768 non-null  string
+ 1   wikipedia_url  15768 non-null  string
+ 2   result         15768 non-null  object
+dtypes: object(1), string(2)
+memory usage: 369.7+ KB
+
+2026-11-22 03:21:21.209 | INFO     | __main__:build:107 - Building Wikipedia

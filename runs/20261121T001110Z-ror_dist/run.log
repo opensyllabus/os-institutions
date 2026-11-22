@@ -1,0 +1,23 @@
+2026-11-21 00:11:11.343 | INFO     | __main__:build:68 - Fetching records from https://zenodo.org/api/records/?communities=ror-data&sort=mostrecent
+2026-11-21 00:11:12.230 | INFO     | __main__:build:73 - Downloading https://zenodo.org/api/records/24378467/files/v2.16-2026-11-19-ror-data.zip/content
+2026-11-21 00:11:12.231 | INFO     | os_parser.institutions.utils:download_zip_file:65 - Downloading https://zenodo.org/api/records/24378467/files/v2.16-2026-11-19-ror-data.zip/content
+2026-11-21 00:12:54.320 | INFO     | os_parser.institutions.utils:download_zip_file:69 - ['v2.16-2026-11-19-ror-data.json', 'v2.16-2026-11-19-ror-data.csv']
+2026-11-21 00:12:54.322 | INFO     | __main__:build:76 - Loading v2.16-2026-11-19-ror-data.json
+2026-11-21 00:12:59.260 | INFO     | os_parser.institutions.utils:log_info:42 - <class 'pandas.core.frame.DataFrame'>
+RangeIndex: 152297 entries, 0 to 152296
+Data columns (total 11 columns):
+ #   Column         Non-Null Count   Dtype
+---  ------         --------------   -----
+ 0   locations      152297 non-null  object
+ 1   established    122192 non-null  Int64
+ 2   external_ids   152297 non-null  object
+ 3   id             152297 non-null  string
+ 4   domains        152297 non-null  object
+ 5   links          152297 non-null  object
+ 6   names          152297 non-null  object
+ 7   relationships  152297 non-null  object
+ 8   status         152297 non-null  string
+ 9   types          152297 non-null  object
+ 10  admin          152297 non-null  object
+dtypes: Int64(1), object(8), string(2)
+memory usage: 12.9+ MB

@@ -1,0 +1,43 @@
+2026-11-22 03:38:17.898 | INFO     | os_parser.institutions.ror:read:39 - Loading opensyllabus/institutions/ror:latest
+2026-11-22 03:38:20.743 | INFO     | __main__:merge_extra_unitids:167 - 31392
+2026-11-22 03:38:20.804 | INFO     | __main__:merge_extra_unitids:172 - 31392
+2026-11-22 03:38:20.805 | INFO     | __main__:merge_wikidata:177 - 31392
+2026-11-22 03:38:20.805 | INFO     | os_parser.institutions.wikidata:read:38 - Loading opensyllabus/institutions/wikidata:latest
+2026-11-22 03:38:22.249 | INFO     | __main__:merge_wikidata:188 - 31392
+2026-11-22 03:38:22.251 | INFO     | __main__:merge_wikipedia:193 - 31392
+2026-11-22 03:38:22.252 | INFO     | os_parser.institutions.wikipedia:read:58 - Loading opensyllabus/institutions/wikipedia:latest
+2026-11-22 03:38:23.996 | INFO     | __main__:merge_wikipedia:203 - 31392
+2026-11-22 03:38:23.999 | INFO     | __main__:merge_ipeds:208 - 31392
+2026-11-22 03:38:24.018 | INFO     | os_parser.institutions.ipeds:read:42 - Loading opensyllabus/institutions/ipeds:latest
+2026-11-22 03:38:25.762 | INFO     | __main__:merge_ipeds:225 - 34479
+2026-11-22 03:38:29.812 | INFO     | os_parser.institutions.utils:log_info:42 - <class 'pandas.core.frame.DataFrame'>
+RangeIndex: 33496 entries, 0 to 33495
+Data columns (total 24 columns):
+ #   Column         Non-Null Count  Dtype
+---  ------         --------------  -----
+ 0   ror_id         30999 non-null  string
+ 1   grid_id        19167 non-null  string
+ 2   wikidata_id    19530 non-null  string
+ 3   unitid         5274 non-null   Int64
+ 4   city           33496 non-null  string
+ 5   name           33496 non-null  string
+ 6   lat            33496 non-null  Float64
+ 7   lng            33496 non-null  Float64
+ 8   url            32514 non-null  string
+ 9   country_code   33496 non-null  string
+ 10  country        33496 non-null  string
+ 11  state_code     24573 non-null  string
+ 12  state          33353 non-null  string
+ 13  enrollment     7452 non-null   Int64
+ 14  two_year       3453 non-null   boolean
+ 15  four_year      3453 non-null   boolean
+ 16  graduate       3453 non-null   boolean
+ 17  research       3453 non-null   boolean
+ 18  wikipedia_url  15461 non-null  string
+ 19  description    19217 non-null  string
+ 20  image_url      11845 non-null  string
+ 21  names          33496 non-null  object
+ 22  urls           33496 non-null  object
+ 23  _id            33496 non-null  Int64
+dtypes: Float64(2), Int64(3), boolean(4), object(2), string(13)
+memory usage: 5.5+ MB

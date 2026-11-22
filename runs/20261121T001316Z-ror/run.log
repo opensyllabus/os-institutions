@@ -1,0 +1,26 @@
+2026-11-21 00:13:17.732 | INFO     | __main__:build:66 - Building ROR dataset
+2026-11-21 00:13:17.733 | INFO     | os_parser.institutions.ror_dist:read:39 - Loading opensyllabus/institutions/ror-dist:latest
+2026-11-21 00:13:31.170 | INFO     | __main__:build:130 - Finished processing ROR dataset
+2026-11-21 00:13:31.192 | INFO     | os_parser.institutions.utils:log_info:42 - <class 'pandas.core.frame.DataFrame'>
+RangeIndex: 31392 entries, 0 to 31391
+Data columns (total 16 columns):
+ #   Column             Non-Null Count  Dtype
+---  ------             --------------  -----
+ 0   ror_established    27724 non-null  Int64
+ 1   ror_id             31392 non-null  string
+ 2   ror_admin          31392 non-null  object
+ 3   ror_name           31392 non-null  string
+ 4   ror_aliases        31392 non-null  object
+ 5   ror_grid_id        19556 non-null  string
+ 6   ror_wikidata_id    22481 non-null  string
+ 7   ror_url            30357 non-null  string
+ 8   ror_wikipedia_url  15768 non-null  string
+ 9   ror_city           31392 non-null  string
+ 10  ror_country_code   31392 non-null  string
+ 11  ror_country_name   31392 non-null  string
+ 12  ror_state_code     22345 non-null  string
+ 13  ror_state          31249 non-null  string
+ 14  ror_lat            31392 non-null  Float64
+ 15  ror_lng            31392 non-null  Float64
+dtypes: Float64(2), Int64(1), object(2), string(11)
+memory usage: 3.9+ MB

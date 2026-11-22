@@ -1,0 +1,29 @@
+{
+  "args": [
+    "build"
+  ],
+  "artifact_created_at": "2026-11-21T00:13:02Z",
+  "duration_seconds": 111,
+  "error": null,
+  "finished_at": "2026-11-21T00:13:01+00:00",
+  "inputs": {},
+  "origin": "exported from W&B ror-dist:v19",
+  "outputs": {
+    "ror-dist:v19/ror-dist.parquet": "d9a3e519e480920693be3e4d2c31c3dda3e5f209bf8c804b560cfec991f809f4"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.31.0"
+  },
+  "params": {},
+  "program": "-m os_parser.institutions.ror_dist",
+  "python": "3.10.21",
+  "source": {},
+  "stage": "ror_dist",
+  "started_at": "2026-11-21T00:11:10+00:00",
+  "status": "ok"
+}
