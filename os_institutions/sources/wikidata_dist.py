@@ -9,17 +9,22 @@ from pathlib import Path
 import pandas as pd
 import pandera as pa
 import typer
-import wandb
 from loguru import logger
 from pandera.typing import DataFrame, Object, Series
 from SPARQLWrapper import JSON, SPARQLWrapper
 from tqdm import tqdm
 
+from os_institutions import params, runs
+from os_institutions.paths import artifact_path
 from os_institutions.schema_model import WikidataDist
 from os_institutions.sources import ror
-from os_institutions.utils import log_info, wandb_artifact, wandb_init
+from os_institutions.utils import write_parquet
 
-ARTIFACT = 'opensyllabus/institutions/wikidata-dist:latest'
+STAGE = 'wikidata_dist'
+
+# `snapshot` is a free-form label of when the live source was queried. It is
+# not used by the code: bump it in params.yaml to make DVC re-run the stage.
+DEFAULTS = {'source': 'wdqs', 'snapshot': None}
 
 app = typer.Typer()
 
@@ -29,41 +34,55 @@ class Schema(WikidataDist):
     results: Series[Object] = pa.Field(nullable=True)
 
 
-def read(name=ARTIFACT, use_artifact=False):
-    logger.info(f'Loading {name}')
-    return pd.read_parquet(wandb_artifact(name, use_artifact))
+def read(path: Path | None = None):
+    path = path or artifact_path(STAGE)
+    logger.info(f'Loading {path}')
+    return pd.read_parquet(path)
 
 
 @pa.check_types
-def load() -> DataFrame[Schema]:
-    return read(use_artifact=True)
+def load(path: Path | None = None) -> DataFrame[Schema]:
+    return read(path)
 
 
 @app.command()
-def csv(path: Path):
-    df = read()
+def csv(
+    path: Path,
+    input: Path | None = typer.Option(None, help='Parquet to read.'),
+):
+    df = read(input)
     df.to_csv(path)
     logger.info(f'Wrote {len(df)} rows to {path}')
 
 
 @app.command()
-def check():
-    df = read()
+def check(input: Path | None = typer.Option(None, help='Parquet to read.')):
+    df = read(input)
     df.info()
     Schema(df)
 
 
 @app.command()
 def build(
-    source: str = typer.Option(
-        'wdqs', help='wdqs (live, throttled) or qlever (weekly mirror)'
+    source: str | None = typer.Option(
+        None, help='wdqs (live, throttled) or qlever (weekly mirror)'
+    ),
+    input: Path | None = typer.Option(
+        None, help='ROR parquet (default: the ror output).'
     ),
 ):
-    if source not in SOURCES:
+    p = params.resolve(STAGE, DEFAULTS, source=source)
+    if p['source'] not in SOURCES:
         raise typer.BadParameter(f'source must be one of {list(SOURCES)}')
-    wandb_init(group='wikidata-dist')
+    input = input or artifact_path('ror')
+    with runs.start(STAGE, params=p) as run:
+        run.set_source(source=p['source'], api=SOURCES[p['source']][0])
+        run.add_input(input)
+        process(run, input, p['source'])
 
-    df = ror.load()
+
+def process(run, input, source):
+    df = ror.load(input)
     df = df.rename(columns={'ror_wikidata_id': 'wikidata_id'})
     df = df[['wikidata_id']]
     df = df.dropna()
@@ -97,12 +116,11 @@ def build(
     df = df.dropna()
     df = df.reset_index(drop=True)
 
-    log_info(df)
+    run.log_info(df)
 
-    artifact = wandb.Artifact(type='dataset', name='wikidata-dist')
-    with artifact.new_file('wikidata-dist.parquet', 'wb') as fh:
-        df.to_parquet(fh)
-    wandb.log_artifact(artifact)
+    output = artifact_path(STAGE)
+    write_parquet(df, output)
+    run.add_output(output)
 
 
 def check_coverage(df):

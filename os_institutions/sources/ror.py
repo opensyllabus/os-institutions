@@ -3,16 +3,16 @@ from pathlib import Path
 import pandas as pd
 import pandera as pa
 import typer
-import wandb
 from loguru import logger
 from pandera.typing import DataFrame, Object, Series
 
-from os_institutions.paths import DATA_DIR
+from os_institutions import runs
+from os_institutions.paths import DATA_DIR, artifact_path
 from os_institutions.schema_model import ROR
 from os_institutions.sources import ror_dist
-from os_institutions.utils import log_info, wandb_artifact, wandb_init
+from os_institutions.utils import write_parquet
 
-ARTIFACT = "opensyllabus/institutions/ror:latest"
+STAGE = "ror"
 
 app = typer.Typer()
 
@@ -35,36 +35,49 @@ class Schema(ROR):
     ror_wikidata_id: Series[pd.StringDtype] = pa.Field(nullable=True)
 
 
-def read(name=ARTIFACT, use_artifact=False):
-    logger.info(f"Loading {name}")
-    return pd.read_parquet(wandb_artifact(name, use_artifact))
+def read(path: Path | None = None):
+    path = path or artifact_path(STAGE)
+    logger.info(f"Loading {path}")
+    return pd.read_parquet(path)
 
 
 @app.command()
-def csv(path: Path):
-    df = read()
+def csv(
+    path: Path,
+    input: Path | None = typer.Option(None, help="Parquet to read."),
+):
+    df = read(input)
     df.to_csv(path)
     logger.info(f"Wrote {len(df)} rows to {path}")
 
 
 @pa.check_types
-def load() -> DataFrame[Schema]:
-    return read(use_artifact=True)
+def load(path: Path | None = None) -> DataFrame[Schema]:
+    return read(path)
 
 
 @app.command()
-def check():
-    df = read()
+def check(input: Path | None = typer.Option(None, help="Parquet to read.")):
+    df = read(input)
     df.info()
     Schema(df)
 
 
 @app.command()
-def build():
-    wandb_init(group="ror")
+def build(
+    input: Path | None = typer.Option(
+        None, help="ROR distribution parquet (default: the ror_dist output)."
+    ),
+):
+    input = input or artifact_path("ror_dist")
+    with runs.start(STAGE) as run:
+        run.add_input(input)
+        process(run, input)
 
+
+def process(run, input):
     logger.info("Building ROR dataset")
-    df = ror_dist.load()
+    df = ror_dist.load(input)
 
     df = df[is_active(df) & (is_education(df) | is_extra_institution(df))]
     df = df.reset_index(drop=True)
@@ -128,12 +141,11 @@ def build():
     df = df.convert_dtypes()
 
     logger.info("Finished processing ROR dataset")
-    log_info(df)
+    run.log_info(df)
 
-    artifact = wandb.Artifact(type="dataset", name="ror")
-    with artifact.new_file("ror.parquet", "wb") as fh:
-        df.to_parquet(fh)
-    wandb.log_artifact(artifact)
+    output = artifact_path(STAGE)
+    write_parquet(df, output)
+    run.add_output(output)
 
 
 def apply_hotfixes(df):
