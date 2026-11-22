@@ -10,7 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Read-only deploy key for opensyllabus/os-normalizer. Drop this step and
       # the `--ssh default` build flag once os-normalizer is public.
       - uses: webfactory/ssh-agent@v0.9.0
