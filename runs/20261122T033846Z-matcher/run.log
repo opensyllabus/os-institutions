@@ -1,0 +1,7 @@
+2026-11-22 03:38:48.029 | INFO     | os_parser.institutions.dataset:read:56 - Loading opensyllabus/institutions/institutions:latest
+2026-11-22 03:38:51.375 | INFO     | __main__:main:157 - Building institution lookup table
+Normalize URLs: 100%|██████████| 33496/33496 [00:01<00:00, 29826.61it/s]
+Modal URL index: 100%|██████████| 37924/37924 [00:00<00:00, 313242.36it/s]
+Normalize names: 100%|██████████| 33496/33496 [00:13<00:00, 2430.90it/s]
+Modal name index: 100%|██████████| 96509/96509 [00:00<00:00, 377333.66it/s]
+Build lookup table: 209403it [00:05, 36599.72it/s]
