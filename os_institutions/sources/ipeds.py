@@ -4,10 +4,10 @@ import pandas as pd
 import pandera as pa
 import typer
 from loguru import logger
+from os_normalizer.uri import repair_scheme
 from pandera.typing import DataFrame, Object, Series
 
 from os_institutions import params, runs
-from os_institutions.normalizer.uri import repair_scheme
 from os_institutions.paths import artifact_path
 from os_institutions.schema_model import IPEDS
 from os_institutions.utils import download_zip_file, write_parquet

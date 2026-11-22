@@ -11,11 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      # Read-only deploy key for opensyllabus/os-normalizer. Drop this step and
+      # the `--ssh default` build flag once os-normalizer is public.
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.OS_NORMALIZER_DEPLOY_KEY }}
       - uses: arduino/setup-task@v2
         with:
           version: 3.x
           repo-token: ${{ github.token }}
       - run: task docker:build
-      - run: task docker:lock -- --check
+      - run: task docker:lock
       - run: task docker:test
       - run: task docker:lint

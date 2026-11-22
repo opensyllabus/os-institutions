@@ -1,8 +1,8 @@
 import pickle
 from dataclasses import dataclass, fields
 
-from os_institutions.normalizer.institution import normalize_school_name
-from os_institutions.normalizer.uri import (
+from os_normalizer.institution import normalize_school_name
+from os_normalizer.uri import (
     get_base_domain_url,
     get_domain_url,
     get_email_base_domain_url,

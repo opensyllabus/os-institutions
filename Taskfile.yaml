@@ -5,7 +5,7 @@ version: '3'
 tasks:
 
   docker:build:
-    desc: Build the Docker image
+    desc: "Build the Docker image (while os-normalizer is private: SSH_KEY=path/to/key for a local key file, otherwise the ssh agent is used)"
     env:
       DOCKER_BUILDKIT: 1
     cmds:
@@ -13,11 +13,12 @@ tasks:
         docker build
         --platform linux/amd64
         --build-arg=CODE_DIR=/opt/os-institutions
+        --ssh default{{if .SSH_KEY}}={{.SSH_KEY}}{{end}}
         -t os_institutions
         {{.CLI_ARGS}} .
 
   docker:build:dvc:
-    desc: Build the Docker image with DVC, for pipeline runs
+    desc: Build the Docker image with DVC, for pipeline runs (same SSH_KEY note)
     env:
       DOCKER_BUILDKIT: 1
     cmds:
@@ -26,6 +27,7 @@ tasks:
         --platform linux/amd64
         --build-arg=CODE_DIR=/opt/os-institutions
         --build-arg=UV_SYNC_ARGS="--group dvc"
+        --ssh default{{if .SSH_KEY}}={{.SSH_KEY}}{{end}}
         -t os_institutions:dvc
         {{.CLI_ARGS}} .
 
@@ -41,12 +43,27 @@ tasks:
         bash
 
   docker:lock:
-    desc: Update uv.lock (pass --check to only verify it)
+    desc: Verify uv.lock is up to date (needs no credentials)
     cmds:
       - >
         docker run --rm
         --platform linux/amd64
         -v $(pwd):/opt/os-institutions
+        os_institutions
+        uv lock --check
+
+  docker:lock:update:
+    desc: "Update uv.lock (fetches os-normalizer; SSH_KEY=path/to/key while it is private)"
+    cmds:
+      - >
+        docker run --rm
+        --platform linux/amd64
+        -v $(pwd):/opt/os-institutions
+        -v {{.SSH_KEY}}:/tmp/ssh_key:ro
+        -e GIT_CONFIG_COUNT=1
+        -e GIT_CONFIG_KEY_0=url.git@github.com:.insteadOf
+        -e GIT_CONFIG_VALUE_0=https://github.com/
+        -e GIT_SSH_COMMAND='ssh -i /tmp/ssh_key -o IdentitiesOnly=yes'
         os_institutions
         uv lock {{.CLI_ARGS}}
 
