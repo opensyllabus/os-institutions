@@ -1,0 +1,36 @@
+{
+  "duration_seconds": 593.7,
+  "error": null,
+  "finished_at": "2026-11-22T20:41:43+00:00",
+  "git": {
+    "dirty": false,
+    "sha": "efbc252b887cf866d6829d665c63b5083655858b"
+  },
+  "inputs": {
+    "artifacts/ror/ror.parquet": "18850b4b7bf0883fd7b48d7839fcd64ce0ac2d6cf9f768d2711bdeaa442a7ddb"
+  },
+  "outputs": {
+    "artifacts/wikidata_dist/wikidata_dist.parquet": "edac7c0d619931ac82585a4d42c40f8a1202ee28fcf9e7f082f8f5602109b3ca"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "os-institutions": "1.0.0",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.34.2"
+  },
+  "params": {
+    "snapshot": "2026-11-22",
+    "source": "qlever"
+  },
+  "python": "3.10.22",
+  "source": {
+    "api": "https://qlever.dev/api/wikidata",
+    "source": "qlever"
+  },
+  "stage": "wikidata_dist",
+  "started_at": "2026-11-22T20:31:49+00:00",
+  "status": "ok"
+}

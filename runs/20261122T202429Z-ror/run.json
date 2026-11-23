@@ -1,0 +1,30 @@
+{
+  "duration_seconds": 3.2,
+  "error": null,
+  "finished_at": "2026-11-22T20:24:32+00:00",
+  "git": {
+    "dirty": false,
+    "sha": "b4acc4deebaf7cd5391abc0a49f7dd0f56ca3d80"
+  },
+  "inputs": {
+    "artifacts/ror_dist/ror_dist.parquet": "d9a3e519e480920693be3e4d2c31c3dda3e5f209bf8c804b560cfec991f809f4"
+  },
+  "outputs": {
+    "artifacts/ror/ror.parquet": "18850b4b7bf0883fd7b48d7839fcd64ce0ac2d6cf9f768d2711bdeaa442a7ddb"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "os-institutions": "1.0.0",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.34.2"
+  },
+  "params": {},
+  "python": "3.10.22",
+  "source": {},
+  "stage": "ror",
+  "started_at": "2026-11-22T20:24:29+00:00",
+  "status": "ok"
+}

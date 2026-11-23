@@ -13,12 +13,12 @@ stages:
       size: 3997118
     - path: artifacts/wikidata/wikidata.parquet
       hash: md5
-      md5: 1921e90845105de4569741e5fd36928c
-      size: 2756276
+      md5: 13a956c67011c243d046dd080e203abc
+      size: 2756462
     - path: artifacts/wikipedia/wikipedia.parquet
       hash: md5
-      md5: 806bec6b2503381e26324bf5e205fef3
-      size: 5439852
+      md5: be759a8b8ac660bfdf251c9eeae303e5
+      size: 5437729
     - path: os_institutions/data
       hash: md5
       md5: 1b206f7a5d71c6f355509fc51c8697fb.dir
@@ -35,8 +35,8 @@ stages:
     outs:
     - path: artifacts/dataset/institutions.parquet
       hash: md5
-      md5: f347098f56bf2f4c3e2da14fc1f065a6
-      size: 10836639
+      md5: 0b8c50cc14fb5c10d3e37c3115b54e3c
+      size: 10833585
     - path: metrics/dataset.json
       hash: md5
       md5: 1e545e2a37bf7fa27ba2dc5fc65ce503
@@ -46,8 +46,8 @@ stages:
     deps:
     - path: artifacts/dataset/institutions.parquet
       hash: md5
-      md5: f347098f56bf2f4c3e2da14fc1f065a6
-      size: 10836639
+      md5: 0b8c50cc14fb5c10d3e37c3115b54e3c
+      size: 10833585
     - path: os_institutions/matcher/build.py
       hash: md5
       md5: 7b31c5118a340d7b91e558f160f7aec0
@@ -63,9 +63,138 @@ stages:
     outs:
     - path: artifacts/matcher/matcher.json.gz
       hash: md5
-      md5: 155f737662bd2e5aeb76961c4c116830
-      size: 7472622
+      md5: 6b25e31bfa7b55fc23266d90678b5b54
+      size: 7471123
     - path: metrics/matcher.json
       hash: md5
-      md5: 71996851086d3baf41b3fcc68ab9f50b
+      md5: a8be400c3f7a9d9d938781a80a9d91b9
       size: 52
+  ror_dist:
+    cmd: python -m os_institutions.sources.ror_dist build
+    deps:
+    - path: os_institutions/sources/ror_dist.py
+      hash: md5
+      md5: ce8b35edaee5f78b6746e9cdab526ace
+      size: 3890
+    params:
+      params.yaml:
+        ror_dist.release: v2.16
+    outs:
+    - path: artifacts/ror_dist/ror_dist.parquet
+      hash: md5
+      md5: 1045cafd816b1ff914e589e2ea533419
+      size: 21640282
+    - path: metrics/ror_dist.json
+      hash: md5
+      md5: 836edbf5fa99ee9c9e4b21d5b3bdcdc4
+      size: 35
+  ror:
+    cmd: python -m os_institutions.sources.ror build
+    deps:
+    - path: artifacts/ror_dist/ror_dist.parquet
+      hash: md5
+      md5: 1045cafd816b1ff914e589e2ea533419
+      size: 21640282
+    - path: os_institutions/data/ror_extra_institutions.csv
+      hash: md5
+      md5: 68a7b6dc93b289e0bb759e51853f6b12
+      size: 90
+    - path: os_institutions/sources/ror.py
+      hash: md5
+      md5: f6d743936751848bd0567e1144d83296
+      size: 5850
+    outs:
+    - path: artifacts/ror/ror.parquet
+      hash: md5
+      md5: e470ed23376b36b3a5f98b902c5e8398
+      size: 3997118
+    - path: metrics/ror.json
+      hash: md5
+      md5: 08a05dd636dbac08831ad5a133983c4c
+      size: 34
+  wikidata_dist:
+    cmd: python -m os_institutions.sources.wikidata_dist build
+    deps:
+    - path: artifacts/ror/ror.parquet
+      hash: md5
+      md5: e470ed23376b36b3a5f98b902c5e8398
+      size: 3997118
+    - path: os_institutions/sources/wikidata_dist.py
+      hash: md5
+      md5: 4826dc996b6af91ab02528985de0556f
+      size: 10073
+    params:
+      params.yaml:
+        wikidata_dist.snapshot: '2026-11-22'
+        wikidata_dist.source: qlever
+    outs:
+    - path: artifacts/wikidata_dist/wikidata_dist.parquet
+      hash: md5
+      md5: 6c5dd83eb568c4a1cd292b3ca8a9bd0f
+      size: 3285908
+    - path: metrics/wikidata_dist.json
+      hash: md5
+      md5: 39c3b0eab93ed121042a615ef995b188
+      size: 33
+  wikidata:
+    cmd: python -m os_institutions.sources.wikidata build
+    deps:
+    - path: artifacts/wikidata_dist/wikidata_dist.parquet
+      hash: md5
+      md5: 6c5dd83eb568c4a1cd292b3ca8a9bd0f
+      size: 3285908
+    - path: os_institutions/sources/wikidata.py
+      hash: md5
+      md5: d07038f8a61a7282f484aa866dddd9c3
+      size: 4969
+    outs:
+    - path: artifacts/wikidata/wikidata.parquet
+      hash: md5
+      md5: 13a956c67011c243d046dd080e203abc
+      size: 2756462
+    - path: metrics/wikidata.json
+      hash: md5
+      md5: 9967ed9358912007e4c5fd626e840b61
+      size: 34
+  wikipedia:
+    cmd: python -m os_institutions.sources.wikipedia build
+    deps:
+    - path: artifacts/ror/ror.parquet
+      hash: md5
+      md5: e470ed23376b36b3a5f98b902c5e8398
+      size: 3997118
+    - path: os_institutions/sources/wikipedia.py
+      hash: md5
+      md5: 9224b372ddd40d9ad13aaccc3765530f
+      size: 7970
+    params:
+      params.yaml:
+        wikipedia.snapshot: '2026-11-22'
+    outs:
+    - path: artifacts/wikipedia/wikipedia.parquet
+      hash: md5
+      md5: be759a8b8ac660bfdf251c9eeae303e5
+      size: 5437729
+    - path: metrics/wikipedia.json
+      hash: md5
+      md5: d05621c2ea2f131dfc10f37cf9001a5d
+      size: 33
+  ipeds:
+    cmd: python -m os_institutions.sources.ipeds build
+    deps:
+    - path: os_institutions/sources/ipeds.py
+      hash: md5
+      md5: 18a1f9e1563cdaa064e774774d01516b
+      size: 5494
+    params:
+      params.yaml:
+        ipeds.year: 2024
+    outs:
+    - path: artifacts/ipeds/ipeds.parquet
+      hash: md5
+      md5: 18cc08db2102239e609b9ea76e6e7536
+      size: 474854
+    - path: metrics/ipeds.json
+      hash: md5
+      md5: 9e4acc96ecd1ad6b95794886de94ebee
+      size: 33

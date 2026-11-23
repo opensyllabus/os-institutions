@@ -1,0 +1,30 @@
+{
+  "duration_seconds": 22.0,
+  "error": null,
+  "finished_at": "2026-11-22T22:29:54+00:00",
+  "git": {
+    "dirty": false,
+    "sha": "efbc252b887cf866d6829d665c63b5083655858b"
+  },
+  "inputs": {
+    "artifacts/dataset/institutions.parquet": "2cf5690074cbae5b2d31c19c6654e91fe99db400797fad1b72f63d880a042c2d"
+  },
+  "outputs": {
+    "artifacts/matcher/matcher.json.gz": "d4cf3f2db3b14d89c147395b5f5f324ce54807557ec3854c48ad6bbde3dd25b6"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "os-institutions": "1.0.0",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.34.2"
+  },
+  "params": {},
+  "python": "3.10.22",
+  "source": {},
+  "stage": "matcher",
+  "started_at": "2026-11-22T22:29:32+00:00",
+  "status": "ok"
+}

@@ -1,0 +1,36 @@
+{
+  "duration_seconds": 14.7,
+  "error": null,
+  "finished_at": "2026-11-22T22:29:26+00:00",
+  "git": {
+    "dirty": false,
+    "sha": "efbc252b887cf866d6829d665c63b5083655858b"
+  },
+  "inputs": {},
+  "outputs": {
+    "artifacts/ipeds/ipeds.parquet": "d66efa11407749f2d9afe5a115cadff9709cb56ef3ccf0985bc690c2baeefd17"
+  },
+  "packages": {
+    "loguru": "0.5.3",
+    "numpy": "1.26.4",
+    "os-institutions": "1.0.0",
+    "pandas": "1.5.3",
+    "pandera": "0.10.1",
+    "pyarrow": "7.0.0",
+    "requests": "2.34.2"
+  },
+  "params": {
+    "year": 2024
+  },
+  "python": "3.10.22",
+  "source": {
+    "files": [
+      "HD2024.zip",
+      "EFFY2024.zip"
+    ],
+    "year": 2024
+  },
+  "stage": "ipeds",
+  "started_at": "2026-11-22T22:29:12+00:00",
+  "status": "ok"
+}

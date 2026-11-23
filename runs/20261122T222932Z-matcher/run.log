@@ -1,0 +1,4 @@
+2026-11-22 22:29:32.746 | INFO     | os_institutions.runs:start:240 - Starting matcher run in runs/20261122T222932Z-matcher
+2026-11-22 22:29:32.768 | INFO     | os_institutions.dataset:read:53 - Loading artifacts/dataset/institutions.parquet
+2026-11-22 22:29:33.308 | INFO     | __main__:main:162 - Building institution lookup table
+2026-11-22 22:29:54.613 | INFO     | __main__:main:172 - Wrote matcher to artifacts/matcher/matcher.json.gz
