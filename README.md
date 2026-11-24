@@ -22,10 +22,19 @@ os_institutions.load_matcher(path='matcher.json.gz')  # a local file, no network
 os_institutions.download()                 # fetch all assets, e.g. when building an image
 ```
 
-Assets are downloaded once to `~/.cache/os-institutions/<tag>/` (set
-`OS_INSTITUTIONS_CACHE` to move it), checked against the release's `SHA256SUMS`,
-and reused offline. While the repository is private, set `GITHUB_TOKEN` (or
-`GH_TOKEN`) to a token that can read it; it is only sent to GitHub's API.
+> **Note:** os-institutions depends on
+> [os-normalizer](https://github.com/opensyllabus/os-normalizer), which is
+> still private. Until it is public, `pip install` / `uv add` works only with
+> read access to that repo (SSH or token). Anyone can still download the
+> [release assets](https://github.com/opensyllabus/os-institutions/releases)
+> directly (see below): `matcher.json.gz` is plain gzip JSON and
+> `institutions.parquet` is parquet.
+
+Assets are downloaded anonymously, once, to `~/.cache/os-institutions/<tag>/`
+(set `OS_INSTITUTIONS_CACHE` to move it), checked against the release's
+`SHA256SUMS`, and reused offline. `GITHUB_TOKEN` (or `GH_TOKEN`) is optional:
+set it to avoid GitHub API rate limits (`load_matcher('latest')` uses the
+API) or to use a private fork or mirror. It is only sent to GitHub's API.
 
 ### Release assets
 
@@ -35,8 +44,8 @@ One tag per release, `vX.Y.Z`, matching the package version. Each release has:
 |---|---|
 | `matcher.json.gz` | The matcher (see "Institution matcher") |
 | `institutions.parquet` | The institutions dataset |
-| `manifest.json` | `version`, `git_sha`, `normalizer_version`, `sources` (the pinned version or snapshot of each input), and `assets` (`sha256` and `bytes` of each file) |
-| `SHA256SUMS` | `sha256sum` output for the three files above |
+| `manifest.json` | `version`, `git_sha`, `normalizer_version`, `sources` (the lineage of the inputs: `origin` and the md5 of each stage output in `dvc.lock`), and `assets` (`sha256` and `bytes` of the matcher and the dataset) |
+| `SHA256SUMS` | `shasum -a 256` of the other three files |
 
 ## Layout
 
@@ -148,11 +157,9 @@ version of the source was used (ROR release file, IPEDS year, ...).
 `metrics/<stage>.json`. Nothing environment-specific is recorded: no e-mail
 addresses, home or absolute paths, git remotes, or environment variables.
 
-The `runs/` directories currently committed are an offline parity check, not
-a real rebuild: only the `dataset` and `matcher` stages were run, from
-upstream parquets seeded out of the previous (v28) export, with
-`dvc repro -s <stage>`. Their `dvc.lock` entries cover those two stages only.
-The first full `dvc repro` replaces them with real runs.
+The oldest committed `runs/` directories are the scrubbed run logs behind the
+v1.0.0 release; later ones come from rebuilds (the newest run of each stage is
+the one `dvc.lock` describes).
 
 Set `OS_INSTITUTIONS_ARTIFACTS_DIR` to keep the outputs somewhere other than
 `./artifacts`. DVC is configured with `cache.type hardlink,symlink`, so the
@@ -170,17 +177,21 @@ point into the container's `/opt/os-institutions` and dangle on the host.
    preview). It uploads `artifacts/` and `metrics/` to a `pr-<N>` pre-release
    with a `SHA256SUMS` file, and posts or updates one PR comment with the
    stage metrics. Assets are limited to 2 GiB each.
-3. The pre-release is deleted when the PR is closed or merged
-   (`task pr:clean` does it by hand). The final dataset and matcher are
-   attached to a versioned GitHub release later.
+3. The pre-release and its tag are deleted when the PR is closed or merged
+   (`task pr:clean` does it by hand; `PR=<N>`, `DRY_RUN=1`). The final dataset
+   and matcher are attached to a versioned GitHub release later.
 
 ### Releasing
 
-Bump `version` in `pyproject.toml`, merge, and check out the merged commit.
-Then run `task release:publish TAG=vX.Y.Z` (needs `gh` and `jq`; `DRY_RUN=1` to
-preview). It takes `matcher.json.gz` and `institutions.parquet` from
-`artifacts/`, writes `manifest.json` and `SHA256SUMS`, and creates the release.
-Pass `-- --assets DIR --sources-file FILE` to release files built elsewhere.
+Bump `version` in `pyproject.toml`, merge, and check out the merged commit
+(a clean checkout of `origin/main`). Then run `task release:publish TAG=vX.Y.Z`
+(needs `gh` and `jq`; `DRY_RUN=1` to preview). It checks that the tag matches
+`version` and does not exist yet, takes `matcher.json.gz` and
+`institutions.parquet` from `artifacts/`, writes `manifest.json` and
+`SHA256SUMS`, and creates the release. Pass `-- --assets DIR --sources-file FILE`
+to release files built elsewhere; the JSON file becomes `sources` in the
+manifest. Pushing the tag runs [`release.yml`](./.github/workflows/release.yml),
+which only checks it against `pyproject.toml` and reruns CI.
 
 ### Mapping null institutions
 
