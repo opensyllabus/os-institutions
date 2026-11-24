@@ -57,8 +57,9 @@ def _open(url: str, accept: str | None = None, token: str | None = None):
                 ' The release or asset may not exist, or the token cannot'
                 ' read the repository.'
                 if token
-                else ' If the repository is private, set GITHUB_TOKEN (or'
-                ' GH_TOKEN) to a token that can read it.'
+                else ' The release or asset may not exist. For a private fork'
+                ' or mirror, or if rate limited, set GITHUB_TOKEN (or'
+                ' GH_TOKEN).'
             )
         raise RuntimeError(
             f'GET {url.split("?")[0]} failed: HTTP {error.code}.{hint}'
