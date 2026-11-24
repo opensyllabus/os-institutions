@@ -117,15 +117,19 @@ class Inputs(NamedTuple):
     ipeds: Path
 
 
-def process(run, inputs):
-    df = get_canonical_dataset(inputs)
-
-    # Blacklist by IDs.
-    for path in sorted((DATA_DIR / 'blacklists').glob('*.csv')):
+def apply_blacklists(df, blacklist_dir=DATA_DIR / 'blacklists'):
+    """Drop rows whose unitid or ror_id appears in any blacklist CSV."""
+    for path in sorted(blacklist_dir.glob('*.csv')):
         blacklist = pd.read_csv(path).convert_dtypes()
         df = df[df.unitid.isna() | ~df.unitid.isin(blacklist.unitid)]
         df = df[df.ror_id.isna() | ~df.ror_id.isin(blacklist.ror_id)]
-    df = df.reset_index(drop=True)
+    return df.reset_index(drop=True)
+
+
+def process(run, inputs):
+    df = get_canonical_dataset(inputs)
+
+    df = apply_blacklists(df)
 
     # Add extra URLs
     df['extra_match_urls'] = get_extra_match_urls(df)
