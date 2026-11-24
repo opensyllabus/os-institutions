@@ -79,7 +79,9 @@ def test_apply_blacklists_excludes_by_each_file_and_identifier(tmp_path):
     df = pd.DataFrame(
         {
             'unitid': pd.array([1, 2, pd.NA, pd.NA, 3], dtype='Int64'),
-            'ror_id': pd.array(['x', 'y', 'rorB', pd.NA, pd.NA], dtype='string'),
+            'ror_id': pd.array(
+                ['x', 'y', 'rorB', pd.NA, pd.NA], dtype='string'
+            ),
         }
     )
 
