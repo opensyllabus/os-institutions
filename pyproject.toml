@@ -63,10 +63,6 @@ quote-style = "preserve"
 known-first-party = ["os_institutions"]
 
 [tool.uv]
-# pygit2 (a DVC dependency) ships no Python 3.14 wheels before 1.19, which in
-# turn requires Python 3.11+; keep the older release for 3.10 only.
-# Likewise numpy ships no cp314 wheels before 2.3 (which requires 3.11+); without
-# one the slim image would build from source and fail for lack of a compiler.
 constraint-dependencies = [
     "pygit2>=1.19; python_full_version >= '3.11'",
     "numpy>=2.3; python_full_version >= '3.11'",
