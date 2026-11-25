@@ -2,7 +2,7 @@ import datetime
 from urllib.parse import urlparse
 
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 
 from os_institutions.paths import DATA_DIR
 from os_institutions.utils import read_yaml
@@ -54,7 +54,7 @@ def list_without_none(col):
     return col.dropna().apply(lambda xs: None not in xs)
 
 
-class Dataset(pa.SchemaModel):
+class Dataset(pa.DataFrameModel):
     @pa.check("grid_id")
     def check_grid_id(cls, col):
         return grid_id_startswith_grid(col)
@@ -215,7 +215,7 @@ class Dataset(pa.SchemaModel):
         return True
 
 
-class IPEDS(pa.SchemaModel):
+class IPEDS(pa.DataFrameModel):
     @pa.check("ipeds_unitid")
     def check_ipeds_unitid(cls, col):
         return unitid_above_minimum(col)
@@ -261,13 +261,13 @@ class IPEDS(pa.SchemaModel):
         return df.ipeds_unitid.notna().all()
 
 
-class RORDist(pa.SchemaModel):
+class RORDist(pa.DataFrameModel):
     @pa.check("id")
     def check_id(cls, col):
         return col.str.startswith("https://ror.org/")
 
 
-class ROR(pa.SchemaModel):
+class ROR(pa.DataFrameModel):
     @pa.check("ror_wikipedia_url")
     def check_ror_wikipedia_url(cls, col):
         return (
@@ -320,13 +320,13 @@ class ROR(pa.SchemaModel):
         return usa.ror_state_code.str.startswith("US-").all()
 
 
-class WikidataDist(pa.SchemaModel):
+class WikidataDist(pa.DataFrameModel):
     @pa.check("wikidata_id")
     def check_wikidata_id(cls, col):
         return wikidata_id_startswith_Q(col)
 
 
-class Wikidata(pa.SchemaModel):
+class Wikidata(pa.DataFrameModel):
     @pa.check("wikidata_id")
     def check_wikidata_id(cls, col):
         return wikidata_id_startswith_Q(col)
@@ -364,7 +364,7 @@ class Wikidata(pa.SchemaModel):
         return latitude_within_range(col)
 
 
-class Wikipedia(pa.SchemaModel):
+class Wikipedia(pa.DataFrameModel):
     @pa.check("wikipedia_url")
     def check_wikipedia_url(cls, col):
         return (
