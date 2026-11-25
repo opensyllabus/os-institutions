@@ -1,5 +1,6 @@
 import pandas as pd
 
+from os_institutions.dataset import apply_blacklists
 from os_institutions.paths import DATA_DIR
 
 BLACKLIST_DIR = DATA_DIR / 'blacklists'
@@ -70,3 +71,23 @@ def test_no_identifier_is_blacklisted_twice():
 
     assert not df.unitid.dropna().duplicated().any()
     assert not df.ror_id.dropna().duplicated().any()
+
+
+def test_apply_blacklists_excludes_by_each_file_and_identifier(tmp_path):
+    (tmp_path / 'a.csv').write_text('unitid,ror_id\n1,\n')
+    (tmp_path / 'b.csv').write_text('unitid,ror_id\n,rorB\n')
+    df = pd.DataFrame(
+        {
+            'unitid': pd.array([1, 2, pd.NA, pd.NA, 3], dtype='Int64'),
+            'ror_id': pd.array(
+                ['x', 'y', 'rorB', pd.NA, pd.NA], dtype='string'
+            ),
+        }
+    )
+
+    out = apply_blacklists(df, tmp_path)
+
+    # Row 0 is excluded by unitid (file a), row 2 by ror_id (file b); rows
+    # with a missing identifier that match nothing are retained.
+    assert out.unitid.tolist() == [2, pd.NA, 3]
+    assert out.ror_id.tolist() == ['y', pd.NA, pd.NA]
