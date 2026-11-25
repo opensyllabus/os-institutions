@@ -4,8 +4,7 @@ version = "1.0.0"
 description = "Educational and research institutions dataset and matcher, based on ROR, IPEDS, and Wikidata"
 readme = "README.md"
 authors = [{ name = "Open Syllabus", email = "contact@opensyllabus.org" }]
-# pyarrow 7 has no wheels for Python 3.11+.
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.10"
 dependencies = [
     "os-normalizer @ git+https://github.com/opensyllabus/os-normalizer.git@v0.1.1",
     "pandas>=2.2,<3",
@@ -62,3 +61,8 @@ quote-style = "preserve"
 
 [tool.ruff.lint.isort]
 known-first-party = ["os_institutions"]
+
+[tool.uv]
+# pygit2 (a DVC dependency) ships no Python 3.14 wheels before 1.19, which in
+# turn requires Python 3.11+; keep the older release for 3.10 only.
+constraint-dependencies = ["pygit2>=1.19; python_full_version >= '3.11'"]

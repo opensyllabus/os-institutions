@@ -1,8 +1,8 @@
 version: 2
 updates:
-  # The pandas/numpy/pyarrow/pandera stack and Python 3.10 are pinned so that
-  # datasets and matchers rebuild identically; only patch/minor updates are
-  # proposed for them.
+  # The pandas/numpy/pyarrow/pandera stack and the Python minor version are
+  # pinned so that datasets and matchers rebuild identically; only patch/minor
+  # updates are proposed for them.
   - package-ecosystem: uv
     directory: /
     schedule:
