@@ -5,10 +5,10 @@ from typing import NamedTuple
 
 import numpy as np
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 import typer
 from loguru import logger
-from pandera.typing import DataFrame, Object, Series
+from pandera.typing.pandas import DataFrame, Object, Series
 
 from os_institutions import runs
 from os_institutions.paths import DATA_DIR, artifact_path
@@ -188,7 +188,7 @@ def process(run, inputs):
 
     df = df[list(Schema.to_schema().columns.keys())]
 
-    # XXX: _id is ignored by pa.SchemaModel
+    # XXX: _id is ignored by pa.DataFrameModel
     df['_id'] = df.index + 1
     df = df.convert_dtypes()
 
