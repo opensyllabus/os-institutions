@@ -9,29 +9,13 @@ import typer
 from loguru import logger
 
 from os_institutions import runs
-from os_institutions.loader import STAGE, Schema, load, read  # noqa: F401
+from os_institutions.loader import STAGE
 from os_institutions.paths import DATA_DIR, artifact_path
+from os_institutions.schema_model import Schema
 from os_institutions.sources import ipeds, ror, wikidata, wikipedia
 from os_institutions.utils import read_yaml, write_parquet
 
 app = typer.Typer()
-
-
-@app.command()
-def csv(
-    path: Path,
-    input: Path | None = typer.Option(None, help='Parquet to read.'),
-):
-    df = read(input)
-    df.to_csv(path)
-    logger.info(f'Wrote {len(df)} rows to {path}')
-
-
-@app.command()
-def check(input: Path | None = typer.Option(None, help='Parquet to read.')):
-    df = read(input)
-    df.info()
-    Schema(df)
 
 
 @app.command()
