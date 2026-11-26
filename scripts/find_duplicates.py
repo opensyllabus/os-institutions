@@ -1,31 +1,27 @@
 """Find IPEDS-only records that duplicate a ROR record, and link them.
 
-`dataset.merge_ipeds` links an IPEDS institution to a ROR record only through
-a known unitid (Wikidata's P-number or `extra_unitids.csv`). When that link is
+The dataset build links an IPEDS institution to a ROR record only through a
+known unitid (Wikidata's P-number or `extra_unitids.csv`). When that link is
 missing, the ROR record keeps `unitid = NA` and the IPEDS institution is added
 as a second, ROR-less row, so one institution ends up as two records, each
 with half the identifiers. The matcher then resolves a URL or name shared by
 both to an arbitrary one of them (`matcher.build.mode`).
 
-`find_duplicates` flags such a pair when, and only when, all of these hold:
+This script reads a built dataset (default: the latest release) and flags a
+pair when, and only when, all of these hold:
 
-* the IPEDS row has a unitid and no ror_id; the other row has a ror_id and no
-  unitid;
-* the IPEDS website and a ROR or Wikidata website share the same normalized
-  domain;
-* the IPEDS name equals, once normalized (case, '&', punctuation), one of
-  the other row's names (ROR name or alias, Wikidata name or label,
-  Wikipedia title);
+* one row has a unitid and no ror_id, the other a ror_id and no unitid;
+* they share a normalized website domain;
+* they share a name, once normalized (case, '&', punctuation);
 * the country, and for the US the state, agree;
 * the pairing is one to one: no other candidate qualifies for either row.
 
-Anything else that shares a domain is reported but left alone.
+Anything else that shares a domain is reported but left alone. The flagged
+pairs are appended to `os_institutions/data/extra_unitids.csv`, so the next
+build links them like any other known unitid; nothing is merged behind the
+scenes and the links are reviewable in git.
 
-`python -m os_institutions.duplicates` runs this on a built dataset and
-appends the flagged pairs to `data/extra_unitids.csv` (ror_id, unitid). The
-next build then joins the IPEDS row to the ROR record like any other known
-unitid, so nothing is merged behind the scenes and the links are reviewable
-in git.
+    uv run scripts/find_duplicates.py [--input institutions.parquet]
 """
 
 import re
@@ -38,9 +34,8 @@ from loguru import logger
 from os_normalizer.institution import normalize_school_name
 from os_normalizer.uri import get_domain_url
 
-from os_institutions.paths import DATA_DIR, artifact_path
-
-NON_STATE_STABBR = ('FM', 'MH', 'PW')
+from os_institutions import load_dataset
+from os_institutions.paths import DATA_DIR
 
 REPORT_COLUMNS = [
     'decision',
@@ -50,15 +45,15 @@ REPORT_COLUMNS = [
     'ipeds_url',
     'ror_id',
     'wikidata_id',
-    'other_name',
-    'other_url',
+    'ror_name',
+    'ror_url',
     'domain',
-    'state',
+    'state_code',
 ]
 
 
 def _missing(value):
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, (list, tuple)) or hasattr(value, 'tolist'):
         return False
     return value is None or bool(pd.isna(value))
 
@@ -66,65 +61,38 @@ def _missing(value):
 def _as_list(value):
     if _missing(value):
         return []
+    if hasattr(value, 'tolist'):
+        value = value.tolist()
     if isinstance(value, (list, tuple)):
         return [v for v in value if not _missing(v)]
-    if hasattr(value, 'tolist'):
-        return [v for v in value.tolist() if not _missing(v)]
     return [value]
 
 
-def _domain(url):
-    if _missing(url) or not url:
-        return None
-    return get_domain_url(url)
+def _domains(row):
+    """Normalized domains of the row's url and urls."""
+    urls = _as_list(row['url']) + _as_list(row['urls'])
+    return {d for d in map(get_domain_url, urls) if d}
 
 
-def _name_keys(name):
-    """Comparison keys of a name: the os-normalizer form, and a plain form
-    that only ignores case, '&' versus 'and', and punctuation."""
-    if _missing(name) or not name:
-        return set()
-    plain = re.sub(r'[^a-z0-9]+', ' ', name.lower().replace('&', ' and '))
-    keys = {normalize_school_name(name), plain.strip()}
+def _name_keys(row):
+    """Comparison keys of the row's names: the os-normalizer form, and a
+    plain form that only ignores case, '&' versus 'and', and punctuation."""
+    keys = set()
+    for name in _as_list(row['name']) + _as_list(row['names']):
+        plain = re.sub(r'[^a-z0-9]+', ' ', name.lower().replace('&', ' and '))
+        keys |= {normalize_school_name(name), plain.strip()}
     return {k for k in keys if k}
 
 
-def _ipeds_country(row):
-    return (
-        row['ipeds_stabbr']
-        if row['ipeds_stabbr'] in NON_STATE_STABBR
-        else 'US'
-    )
-
-
-def _ror_domains(row):
-    return {
-        d
-        for d in (
-            _domain(row.get('ror_url')),
-            _domain(row.get('wikidata_url')),
-        )
-        if d
-    }
-
-
-def _ror_names(row):
-    names = [row.get('ror_name'), row.get('wikidata_name')]
-    names += _as_list(row.get('ror_aliases'))
-    names += _as_list(row.get('wikidata_labels'))
-    names.append(row.get('wikipedia_title'))
-    return set().union(*map(_name_keys, names))
-
-
-def _same_place(ipeds, ror):
+def _same_place(a, b):
     """Same country, and the same state for US institutions."""
-    country = _ipeds_country(ipeds)
-    if ror.get('ror_country_code') != country:
+    if _missing(a['country_code']) or a['country_code'] != b['country_code']:
         return False
-    if country != 'US':
+    if a['country_code'] != 'US':
         return True
-    state = ror.get('ror_state_code')
-    return not _missing(state) and state == f'US-{ipeds["ipeds_stabbr"]}'
+    if _missing(a['state_code']) or _missing(b['state_code']):
+        return False
+    return a['state_code'] == b['state_code']
 
 
 def find_duplicates(df):
@@ -138,18 +106,16 @@ def find_duplicates(df):
 
     by_domain = defaultdict(list)
     for idx, row in ror_only.iterrows():
-        for domain in _ror_domains(row):
+        for domain in _domains(row):
             by_domain[domain].append(idx)
 
-    pairs = {}  # (ipeds idx, ror idx) -> (domain, reason or None)
+    pairs = {}  # (ipeds idx, ror idx) -> skip reason, or None to merge
     for i, a in ipeds_only.iterrows():
-        domain = _domain(a['ipeds_webaddr'])
-        if not domain:
-            continue
-        a_keys = _name_keys(a['ipeds_instnm'])
-        for j in by_domain.get(domain, ()):
+        a_keys = _name_keys(a)
+        candidates = {j for d in _domains(a) for j in by_domain.get(d, ())}
+        for j in sorted(candidates):
             b = ror_only.loc[j]
-            if not a_keys & _ror_names(b):
+            if not a_keys & _name_keys(b):
                 reason = 'name differs'
             elif not _same_place(a, b):
                 reason = 'state or country differs'
@@ -157,12 +123,12 @@ def find_duplicates(df):
                 reason = None
             pairs[(i, j)] = reason
 
-    good = [pair for pair, reason in pairs.items() if reason is None]
-    n_ror = defaultdict(int)
     n_ipeds = defaultdict(int)
-    for i, j in good:
-        n_ipeds[i] += 1
-        n_ror[j] += 1
+    n_ror = defaultdict(int)
+    for (i, j), reason in pairs.items():
+        if reason is None:
+            n_ipeds[i] += 1
+            n_ror[j] += 1
 
     out = []
     for (i, j), reason in pairs.items():
@@ -181,19 +147,20 @@ def report_duplicates(df):
     rows = []
     for i, j, decision, reason in find_duplicates(df):
         a, b = df.loc[i], df.loc[j]
+        shared = _domains(a) & _domains(b)
         rows.append(
             {
                 'decision': decision,
                 'reason': reason,
                 'unitid': a['unitid'],
-                'ipeds_name': a['ipeds_instnm'],
-                'ipeds_url': a['ipeds_webaddr'],
+                'ipeds_name': a['name'],
+                'ipeds_url': a['url'],
                 'ror_id': b['ror_id'],
                 'wikidata_id': b['wikidata_id'],
-                'other_name': b['ror_name'],
-                'other_url': b['ror_url'],
-                'domain': _domain(a['ipeds_webaddr']),
-                'state': b['ror_state_code'],
+                'ror_name': b['name'],
+                'ror_url': b['url'],
+                'domain': min(shared),
+                'state_code': b['state_code'],
             }
         )
     return pd.DataFrame(rows, columns=REPORT_COLUMNS)
@@ -218,8 +185,10 @@ app = typer.Typer()
 
 
 @app.command()
-def find(
-    input: Path = typer.Option(None, help='Dataset parquet to scan.'),
+def main(
+    input: Path = typer.Option(
+        None, help='Dataset parquet to scan. Default: the latest release.'
+    ),
     extra: Path = typer.Option(
         DATA_DIR / 'extra_unitids.csv', help='extra_unitids.csv to extend.'
     ),
@@ -230,8 +199,7 @@ def find(
         True, help='Append the new links to extra_unitids.csv.'
     ),
 ):
-    """Add IPEDS/ROR duplicates of a built dataset to extra unitids."""
-    df = pd.read_parquet(input or artifact_path('dataset'))
+    df = pd.read_parquet(input) if input else load_dataset()
     pairs = report_duplicates(df)
     if report:
         report.parent.mkdir(parents=True, exist_ok=True)

@@ -1,31 +1,28 @@
+import importlib.util
+from pathlib import Path
+
 import pandas as pd
 
-from os_institutions.duplicates import (
-    find_duplicates,
-    new_extra_unitids,
-    report_duplicates,
+spec = importlib.util.spec_from_file_location(
+    'find_duplicates',
+    Path(__file__).parent.parent / 'scripts' / 'find_duplicates.py',
 )
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+find_duplicates = mod.find_duplicates
+new_extra_unitids = mod.new_extra_unitids
+report_duplicates = mod.report_duplicates
 
 COLUMNS = [
     'unitid',
     'ror_id',
     'wikidata_id',
-    'grid_id',
-    'ror_name',
-    'ror_url',
-    'ror_aliases',
-    'ror_state_code',
-    'ror_country_code',
-    'wikidata_url',
-    'wikidata_name',
-    'wikidata_labels',
-    'wikipedia_title',
-    'ipeds_unitid',
-    'ipeds_instnm',
-    'ipeds_webaddr',
-    'ipeds_stabbr',
-    'ipeds_ialias',
-    'ipeds_c21basic',
+    'name',
+    'names',
+    'url',
+    'urls',
+    'country_code',
+    'state_code',
 ]
 
 
@@ -34,24 +31,27 @@ def frame(*rows):
     return pd.DataFrame(data, columns=COLUMNS).astype(object)
 
 
-def ipeds(unitid, name, url, state='NE', **kw):
+def ipeds(unitid, name, url, state='US-NE', **kw):
     return {
         'unitid': unitid,
-        'ipeds_unitid': unitid,
-        'ipeds_instnm': name,
-        'ipeds_webaddr': url,
-        'ipeds_stabbr': state,
-        'ipeds_c21basic': 3,
+        'name': name,
+        'names': [name],
+        'url': url,
+        'urls': [url],
+        'country_code': 'US',
+        'state_code': state,
     } | kw
 
 
 def ror(ror_id, name, url, state='US-NE', country='US', **kw):
     return {
         'ror_id': ror_id,
-        'ror_name': name,
-        'ror_url': url,
-        'ror_state_code': state,
-        'ror_country_code': country,
+        'name': name,
+        'names': [name],
+        'url': url,
+        'urls': [url] if isinstance(url, str) else [],
+        'country_code': country,
+        'state_code': state,
     } | kw
 
 
@@ -88,7 +88,7 @@ def test_name_match_ignores_punctuation_and_ampersand():
             1,
             'Grossmont-Cuyamaca Community College District',
             'http://www.gcccd.edu/',
-            state='CA',
+            state='US-CA',
         ),
         ror(
             'r2',
@@ -100,7 +100,7 @@ def test_name_match_ignores_punctuation_and_ampersand():
             2,
             'Acupuncture and Integrative Medicine College',
             'https://aimc.edu',
-            state='CA',
+            state='US-CA',
         ),
     )
     assert links(df) == {'r1': 1, 'r2': 2}
@@ -108,7 +108,12 @@ def test_name_match_ignores_punctuation_and_ampersand():
 
 def test_name_match_uses_aliases():
     df = frame(
-        ror('r1', 'Universidad X', 'https://x.edu', ror_aliases=['X College']),
+        ror(
+            'r1',
+            'Universidad X',
+            'https://x.edu',
+            names=['Universidad X', 'X College'],
+        ),
         ipeds(1, 'X College', 'https://x.edu'),
     )
     assert links(df) == {'r1': 1}
@@ -132,7 +137,7 @@ def test_different_name_is_not_linked():
 def test_different_state_or_country_is_not_linked():
     df = frame(
         ror('r1', 'Same College', 'https://same.edu', state='US-NE'),
-        ipeds(1, 'Same College', 'https://same.edu', state='IA'),
+        ipeds(1, 'Same College', 'https://same.edu', state='US-IA'),
         ror(
             'r2',
             'Other College',
@@ -140,7 +145,7 @@ def test_different_state_or_country_is_not_linked():
             country='CA',
             state='CA-ON',
         ),
-        ipeds(2, 'Other College', 'https://other.edu', state='NE'),
+        ipeds(2, 'Other College', 'https://other.edu'),
     )
     assert links(df) == {}
     assert set(report_duplicates(df)['reason']) == {'state or country differs'}
@@ -162,9 +167,9 @@ def test_different_domain_is_not_linked():
     assert report_duplicates(df).empty
 
 
-def test_matches_wikidata_url():
+def test_matches_any_url():
     df = frame(
-        ror('r1', 'Same College', pd.NA, wikidata_url='https://same.edu/'),
+        ror('r1', 'Same College', pd.NA, urls=['https://same.edu/']),
         ipeds(1, 'Same College', 'https://www.same.edu'),
     )
     assert links(df) == {'r1': 1}
