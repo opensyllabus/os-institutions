@@ -1,6 +1,5 @@
 from collections import Counter
 from functools import partial
-from itertools import chain
 from operator import is_not
 from pathlib import Path
 
@@ -8,11 +7,10 @@ import pandas as pd
 import typer
 from loguru import logger
 from os_normalizer.institution import normalize_school_name
-from os_normalizer.uri import get_domain_url, get_full_url
 from tqdm import tqdm
 
 from os_institutions import loader, runs
-from os_institutions.matcher import format
+from os_institutions.matcher import format, url_keys
 from os_institutions.paths import artifact_path
 
 STAGE = "matcher"
@@ -27,13 +25,6 @@ def read(path: Path | None = None):
     logger.info(f"Loading {path}")
 
     return format.load(path)
-
-
-def normalize_urls(urls):
-    full_urls = map(get_full_url, urls)
-    domain_urls = map(get_domain_url, urls)
-    urls = filter(not_none, chain(full_urls, domain_urls))
-    return list(urls)
 
 
 def normalize_names(names):
@@ -52,22 +43,31 @@ def mode(xs):
 
 
 def build_url_references(df):
-    """Build canonical URL references for institutions."""
-    tqdm.pandas(desc="Normalize URLs")
-    refs = df.urls.progress_apply(normalize_urls)
+    """Build canonical URL references for institutions.
 
-    # Explode and groupby ie) url: [idx, idx, idx]
-    refs = (
-        refs.explode()
-        .reset_index()
-        .groupby(by="urls")
-        .agg({"index": list})
-        .reset_index()
-    ).rename(columns={"index": "idxs", "urls": "ref"})
-
-    tqdm.pandas(desc="Modal URL index")
-    refs["idx"] = refs["idxs"].progress_apply(mode).astype("Int64")
-    refs = refs[["idx", "ref"]]
+    Domain and path keys are derived in `url_keys` (full normalized paths,
+    with first-segment keys only where they identify the institution).
+    """
+    names = df["names"] if "names" in df else df["name"]
+    rows = (
+        (
+            idx,
+            [
+                n
+                for n in [name, *(ns if isinstance(ns, (list, tuple)) else [])]
+                if isinstance(n, str) and n
+            ],
+            [
+                u
+                for u in (urls if isinstance(urls, (list, tuple)) else [])
+                if isinstance(u, str) and u
+            ],
+        )
+        for idx, name, ns, urls in zip(df.index, df["name"], names, df["urls"])
+    )
+    table = url_keys.build_url_key_table(rows)
+    refs = pd.DataFrame({"idx": list(table.values()), "ref": list(table)})
+    refs["idx"] = refs["idx"].astype("Int64")
 
     return refs
 

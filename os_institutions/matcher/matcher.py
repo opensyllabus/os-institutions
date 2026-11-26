@@ -6,11 +6,11 @@ from os_normalizer.uri import (
     get_domain_url,
     get_email_base_domain_url,
     get_email_domain_url,
-    get_full_url,
     repair_url,
 )
 
 from os_institutions.matcher import format
+from os_institutions.matcher.url_keys import path_prefix_keys
 
 
 @dataclass
@@ -85,6 +85,13 @@ class InstitutionMatcher:
                 return self.institutions[idx]
         return None
 
+    def lookup_path(self, url: str | None):
+        """Longest registered path prefix of `url` (`d/a/b`, then `d/a`)."""
+        for key in path_prefix_keys(url):
+            if match := self.lookup(key):
+                return match
+        return None
+
     def match(
         self,
         url: str | None,
@@ -109,9 +116,9 @@ class InstitutionMatcher:
             return match
         if unitid is not None and (match := self.lookup(str(unitid))):
             return match
-        if match := self.lookup(get_full_url(url)):
+        if match := self.lookup_path(url):
             return match
-        if match := self.lookup(get_full_url(source_url)):
+        if match := self.lookup_path(source_url):
             return match
         if match := self.lookup(get_domain_url(url)):
             return match
