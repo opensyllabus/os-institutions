@@ -1932,7 +1932,7 @@ pipeline = [
 [package.metadata]
 requires-dist = [
     { name = "numpy", specifier = ">=2,<3" },
-    { name = "os-normalizer", git = "https://github.com/opensyllabus/os-normalizer.git?rev=v0.1.1" },
+    { name = "os-normalizer", git = "https://github.com/opensyllabus/os-normalizer.git?rev=v0.1.2" },
     { name = "pandas", specifier = ">=2.2,<3" },
     { name = "pandera", specifier = ">=0.20" },
     { name = "pyarrow", specifier = ">=17" },
@@ -1963,8 +1963,8 @@ pipeline = [
 
 [[package]]
 name = "os-normalizer"
-version = "0.1.1"
-source = { git = "https://github.com/opensyllabus/os-normalizer.git?rev=v0.1.1#e7973309032a533cd287043990052b76079acc73" }
+version = "0.1.2"
+source = { git = "https://github.com/opensyllabus/os-normalizer.git?rev=v0.1.2#1b3ced91e044a965511d05b53acea1e06e0fe79a" }
 dependencies = [
     { name = "nameparser" },
     { name = "regex" },
@@ -3228,7 +3228,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/63/17/04d2d3e30e2bc5a3e
 
 [[package]]
 name = "tldextract"
-version = "3.5.0"
+version = "5.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
@@ -3236,9 +3236,9 @@ dependencies = [
     { name = "requests" },
     { name = "requests-file" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/50/c6/3a555f4a1b22c66c70b0450353a0cab91c3946b8a0a732d8b72e60047103/tldextract-3.5.0.tar.gz", hash = "sha256:4df1c65b95be61d59428e8611e955e54e6f1d4483d3e8d5733d3a9062155e910", size = 109922, upload-time = "2023-09-07T01:11:00.976Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fd/5d/45ece871390ccc985f821353543165bcf3784fa97d8484fd0ca5f2726612/tldextract-5.4.0.tar.gz", hash = "sha256:6c9223212c15c25c0da2bf7313893c14f175cb36b64a0c42da67a468e0c61ee3", size = 197271, upload-time = "2026-10-03T21:32:47.229Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e4/6b/2e0c1449c0768f25ea8054476a991152a59507ac019a5647d92e44540a73/tldextract-3.5.0-py3-none-any.whl", hash = "sha256:2cb271ca8d06ea1630a1361b58edad14e0cf81f34ce3c90b052854528fe2a281", size = 97177, upload-time = "2023-09-07T01:10:58.891Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/e0/d5760e222a7e3f3aec7ef59f6dff952af27d09ec168bcca50751d9698151/tldextract-5.4.0-py3-none-any.whl", hash = "sha256:7f02aed30bd3b6ad5717192eb859a39b20aafc7caf3917d9cf6cb00a58efb34f", size = 107482, upload-time = "2026-10-03T21:32:45.842Z" },
 ]
 
 [[package]]
