@@ -9,7 +9,6 @@ import typer
 from loguru import logger
 
 from os_institutions import runs
-from os_institutions.duplicates import merge_duplicates
 from os_institutions.loader import STAGE
 from os_institutions.paths import DATA_DIR, artifact_path
 from os_institutions.schema_model import Schema
@@ -17,9 +16,6 @@ from os_institutions.sources import ipeds, ror, wikidata, wikipedia
 from os_institutions.utils import read_yaml, write_parquet
 
 app = typer.Typer()
-
-# Audit log of the duplicate merges, written next to the dataset.
-MERGES_REPORT = 'merged_duplicates.csv'
 
 
 @app.command()
@@ -76,15 +72,6 @@ def process(run, inputs):
     df = get_canonical_dataset(inputs)
 
     df = apply_blacklists(df)
-
-    # Join an IPEDS-only record to the ROR record of the same institution.
-    df, merges = merge_duplicates(df)
-    n_merged = int((merges['decision'] == 'merge').sum())
-    logger.info(f'Merged {n_merged} duplicate institutions')
-    report = artifact_path(STAGE).with_name(MERGES_REPORT)
-    report.parent.mkdir(parents=True, exist_ok=True)
-    merges.to_csv(report, index=False)
-    run.summarize(duplicates_merged=n_merged)
 
     # Add extra URLs
     df['extra_match_urls'] = get_extra_match_urls(df)

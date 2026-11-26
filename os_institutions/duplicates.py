@@ -1,4 +1,4 @@
-"""Merge IPEDS-only records into the ROR record describing the same entity.
+"""Find IPEDS-only records that duplicate a ROR record, and link them.
 
 `dataset.merge_ipeds` links an IPEDS institution to a ROR record only through
 a known unitid (Wikidata's P-number or `extra_unitids.csv`). When that link is
@@ -7,7 +7,7 @@ as a second, ROR-less row, so one institution ends up as two records, each
 with half the identifiers. The matcher then resolves a URL or name shared by
 both to an arbitrary one of them (`matcher.build.mode`).
 
-`merge_duplicates` joins such a pair when, and only when, all of these hold:
+`find_duplicates` flags such a pair when, and only when, all of these hold:
 
 * the IPEDS row has a unitid and no ror_id; the other row has a ror_id and no
   unitid;
@@ -19,17 +19,26 @@ both to an arbitrary one of them (`matcher.build.mode`).
 * the country, and for the US the state, agree;
 * the pairing is one to one: no other candidate qualifies for either row.
 
-Anything else that shares a domain is reported but left alone. The merged row
-takes every field from the ROR side and fills the gaps (unitid and the
-`ipeds_*` columns) from the IPEDS side.
+Anything else that shares a domain is reported but left alone.
+
+`python -m os_institutions.duplicates` runs this on a built dataset and
+appends the flagged pairs to `data/extra_unitids.csv` (ror_id, unitid). The
+next build then joins the IPEDS row to the ROR record like any other known
+unitid, so nothing is merged behind the scenes and the links are reviewable
+in git.
 """
 
 import re
 from collections import defaultdict
+from pathlib import Path
 
 import pandas as pd
+import typer
+from loguru import logger
 from os_normalizer.institution import normalize_school_name
 from os_normalizer.uri import get_domain_url
+
+from os_institutions.paths import DATA_DIR, artifact_path
 
 NON_STATE_STABBR = ('FM', 'MH', 'PW')
 
@@ -166,31 +175,12 @@ def find_duplicates(df):
     return out
 
 
-def fill_from(ror_row, ipeds_row):
-    """The IPEDS values that fill the gaps of the ROR row, by column."""
-    return {
-        col: ipeds_row[col]
-        for col in ror_row.index
-        if _missing(ror_row[col]) and not _missing(ipeds_row[col])
-    }
-
-
-def merge_duplicates(df):
-    """Merge duplicate IPEDS/ROR records; return `(df, report)`.
-
-    `report` has one row per candidate pair, merged or skipped, for audit.
-    """
+def report_duplicates(df):
+    """One row per candidate pair, merge or skip, for audit."""
     df = df.reset_index(drop=True)
-    decisions = find_duplicates(df)
-
     rows = []
-    drop = []
-    for i, j, decision, reason in decisions:
+    for i, j, decision, reason in find_duplicates(df):
         a, b = df.loc[i], df.loc[j]
-        if decision == 'merge':
-            for col, value in fill_from(b, a).items():
-                df.at[j, col] = value
-            drop.append(i)
         rows.append(
             {
                 'decision': decision,
@@ -206,7 +196,57 @@ def merge_duplicates(df):
                 'state': b['ror_state_code'],
             }
         )
+    return pd.DataFrame(rows, columns=REPORT_COLUMNS)
 
-    df = df.drop(index=drop).reset_index(drop=True)
-    report = pd.DataFrame(rows, columns=REPORT_COLUMNS)
-    return df, report
+
+def new_extra_unitids(report, extra):
+    """The (ror_id, unitid) rows of the merge pairs not yet in `extra`.
+
+    A pair is dropped when its ror_id or unitid is already linked, so an
+    existing (manual) link is never overridden or duplicated.
+    """
+    merges = report[report['decision'] == 'merge']
+    new = merges[
+        ~merges['ror_id'].isin(extra['ror_id'])
+        & ~merges['unitid'].isin(extra['unitid'])
+    ]
+    out = new[['ror_id', 'unitid']].astype({'unitid': 'int64'})
+    return out.sort_values('unitid').reset_index(drop=True)
+
+
+app = typer.Typer()
+
+
+@app.command()
+def find(
+    input: Path = typer.Option(None, help='Dataset parquet to scan.'),
+    extra: Path = typer.Option(
+        DATA_DIR / 'extra_unitids.csv', help='extra_unitids.csv to extend.'
+    ),
+    report: Path = typer.Option(
+        None, help='Where to write every candidate pair as CSV.'
+    ),
+    write: bool = typer.Option(
+        True, help='Append the new links to extra_unitids.csv.'
+    ),
+):
+    """Add IPEDS/ROR duplicates of a built dataset to extra unitids."""
+    df = pd.read_parquet(input or artifact_path('dataset'))
+    pairs = report_duplicates(df)
+    if report:
+        report.parent.mkdir(parents=True, exist_ok=True)
+        pairs.to_csv(report, index=False)
+
+    current = pd.read_csv(extra)
+    new = new_extra_unitids(pairs, current)
+    logger.info(
+        f'{len(pairs)} candidate pairs, '
+        f'{(pairs["decision"] == "merge").sum()} to merge, '
+        f'{len(new)} new links'
+    )
+    if write and len(new):
+        pd.concat([current, new]).to_csv(extra, index=False)
+
+
+if __name__ == '__main__':
+    app()

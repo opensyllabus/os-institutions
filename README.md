@@ -259,15 +259,19 @@ os_institutions.loader csv <path>` exports the dataset to CSV.
 ### Duplicate institutions
 
 An IPEDS institution is linked to its ROR record only through a known unitid
-(Wikidata or `extra_unitids.csv`). Without it the dataset used to hold two
-records for one institution: the ROR record without a unitid, and an IPEDS-only
-record without a ror_id. After the blacklists,
-[`duplicates.py`](./os_institutions/duplicates.py) merges such a pair when the
+(Wikidata or `extra_unitids.csv`). Without it the dataset holds two records
+for one institution: the ROR record without a unitid, and an IPEDS-only
+record without a ror_id.
+`uv run python -m os_institutions.duplicates` scans a built dataset
+(`--input`, default the local `institutions.parquet`) for such pairs and
+appends them to [`extra_unitids.csv`](./os_institutions/data/extra_unitids.csv);
+the next build links them like any other known unitid. A pair is added when the
 IPEDS website and a ROR/Wikidata website have the same domain, the IPEDS name
 equals one of the ROR/Wikidata names (ignoring case, `&` and punctuation), the
-country and US state agree, and the pairing is one to one. Every candidate
-pair, merged or skipped with the reason, is written to
-`artifacts/dataset/merged_duplicates.csv`.
+country and US state agree, and the pairing is one to one. Existing
+`extra_unitids.csv` rows are never changed. `--report <path>` writes every
+candidate pair, added or skipped with the reason, as CSV; `--no-write` only
+reports. Review the diff of `extra_unitids.csv` before committing.
 
 ### Blacklists
 

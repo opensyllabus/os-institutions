@@ -1,6 +1,10 @@
 import pandas as pd
 
-from os_institutions.duplicates import find_duplicates, merge_duplicates
+from os_institutions.duplicates import (
+    find_duplicates,
+    new_extra_unitids,
+    report_duplicates,
+)
 
 COLUMNS = [
     'unitid',
@@ -51,28 +55,25 @@ def ror(ror_id, name, url, state='US-NE', country='US', **kw):
     } | kw
 
 
-def test_merges_pair_and_keeps_all_ids():
+def links(df):
+    """The (ror_id -> unitid) links the duplicates report would add."""
+    new = new_extra_unitids(
+        report_duplicates(df), pd.DataFrame({'ror_id': [], 'unitid': []})
+    )
+    return dict(zip(new['ror_id'], new['unitid']))
+
+
+def test_links_pair():
     df = frame(
         ror(
             '05x0zqa09',
             'Northeast Community College',
             'https://www.northeast.edu/',
-            wikidata_id='Q1',
-            grid_id='grid.1',
         ),
         ipeds(181491, 'Northeast Community College', 'https://northeast.edu/'),
     )
-    out, report = merge_duplicates(df)
-
-    assert len(out) == 1
-    row = out.iloc[0]
-    assert row['ror_id'] == '05x0zqa09'
-    assert row['wikidata_id'] == 'Q1'
-    assert row['grid_id'] == 'grid.1'
-    assert row['unitid'] == 181491
-    assert row['ipeds_instnm'] == 'Northeast Community College'
-    assert row['ror_name'] == 'Northeast Community College'
-    assert list(report['decision']) == ['merge']
+    assert links(df) == {'05x0zqa09': 181491}
+    assert list(report_duplicates(df)['decision']) == ['merge']
 
 
 def test_name_match_ignores_punctuation_and_ampersand():
@@ -102,9 +103,7 @@ def test_name_match_ignores_punctuation_and_ampersand():
             state='CA',
         ),
     )
-    out, _ = merge_duplicates(df)
-    assert len(out) == 2
-    assert out['unitid'].notna().all() and out['ror_id'].notna().all()
+    assert links(df) == {'r1': 1, 'r2': 2}
 
 
 def test_name_match_uses_aliases():
@@ -112,11 +111,10 @@ def test_name_match_uses_aliases():
         ror('r1', 'Universidad X', 'https://x.edu', ror_aliases=['X College']),
         ipeds(1, 'X College', 'https://x.edu'),
     )
-    out, _ = merge_duplicates(df)
-    assert len(out) == 1
+    assert links(df) == {'r1': 1}
 
 
-def test_different_name_is_not_merged():
+def test_different_name_is_not_linked():
     df = frame(
         ror('r1', 'University of Nebraska System', 'https://nebraska.edu'),
         ipeds(
@@ -125,13 +123,13 @@ def test_different_name_is_not_merged():
             'https://nebraska.edu',
         ),
     )
-    out, report = merge_duplicates(df)
-    assert len(out) == 2
+    report = report_duplicates(df)
+    assert links(df) == {}
     assert list(report['decision']) == ['skip']
     assert report['reason'][0] == 'name differs'
 
 
-def test_different_state_or_country_is_not_merged():
+def test_different_state_or_country_is_not_linked():
     df = frame(
         ror('r1', 'Same College', 'https://same.edu', state='US-NE'),
         ipeds(1, 'Same College', 'https://same.edu', state='IA'),
@@ -144,28 +142,24 @@ def test_different_state_or_country_is_not_merged():
         ),
         ipeds(2, 'Other College', 'https://other.edu', state='NE'),
     )
-    out, report = merge_duplicates(df)
-    assert len(out) == 4
-    assert set(report['reason']) == {'state or country differs'}
+    assert links(df) == {}
+    assert set(report_duplicates(df)['reason']) == {'state or country differs'}
 
 
-def test_missing_ror_state_is_not_merged():
+def test_missing_ror_state_is_not_linked():
     df = frame(
         ror('r1', 'Same College', 'https://same.edu', state=pd.NA),
         ipeds(1, 'Same College', 'https://same.edu'),
     )
-    out, _ = merge_duplicates(df)
-    assert len(out) == 2
+    assert links(df) == {}
 
 
-def test_different_domain_is_not_merged():
+def test_different_domain_is_not_linked():
     df = frame(
         ror('r1', 'Same College', 'https://same.edu'),
         ipeds(1, 'Same College', 'https://elsewhere.edu'),
     )
-    out, report = merge_duplicates(df)
-    assert len(out) == 2
-    assert report.empty
+    assert report_duplicates(df).empty
 
 
 def test_matches_wikidata_url():
@@ -173,36 +167,30 @@ def test_matches_wikidata_url():
         ror('r1', 'Same College', pd.NA, wikidata_url='https://same.edu/'),
         ipeds(1, 'Same College', 'https://www.same.edu'),
     )
-    out, _ = merge_duplicates(df)
-    assert len(out) == 1
+    assert links(df) == {'r1': 1}
 
 
-def test_ambiguous_candidates_are_not_merged():
+def test_ambiguous_candidates_are_not_linked():
     df = frame(
         ror('r1', 'Unitek College', 'https://unitek.edu'),
         ror('r2', 'Unitek College', 'https://unitek.edu'),
         ipeds(1, 'Unitek College', 'https://unitek.edu'),
         ipeds(2, 'Unitek College', 'https://unitek.edu'),
     )
-    out, report = merge_duplicates(df)
-    assert len(out) == 4
-    assert set(report['reason']) == {'ambiguous: several candidates'}
+    assert links(df) == {}
+    assert set(report_duplicates(df)['reason']) == {
+        'ambiguous: several candidates'
+    }
 
 
-def test_campuses_sharing_a_domain_stay_separate():
+def test_campuses_sharing_a_domain_link_by_name():
     df = frame(
         ror('r1', 'SJVC Visalia', 'https://sjvc.edu'),
         ror('r2', 'SJVC Bakersfield', 'https://sjvc.edu'),
         ipeds(1, 'SJVC Visalia', 'https://sjvc.edu'),
         ipeds(2, 'SJVC Bakersfield', 'https://sjvc.edu'),
     )
-    out, _ = merge_duplicates(df)
-    assert len(out) == 2
-    assert out['unitid'].notna().all()
-    assert out.set_index('ror_name')['unitid'].to_dict() == {
-        'SJVC Visalia': 1,
-        'SJVC Bakersfield': 2,
-    }
+    assert links(df) == {'r1': 1, 'r2': 2}
 
 
 def test_records_that_already_have_both_ids_are_untouched():
@@ -210,21 +198,19 @@ def test_records_that_already_have_both_ids_are_untouched():
         ror('r1', 'Same College', 'https://same.edu', unitid=5),
         ipeds(1, 'Same College', 'https://same.edu'),
     )
-    out, report = merge_duplicates(df)
-    assert len(out) == 2
-    assert report.empty
+    assert report_duplicates(df).empty
 
 
-def test_merged_ids_stay_unique():
+def test_existing_extra_unitids_are_kept():
     df = frame(
-        ror('r1', 'A College', 'https://a.edu', wikidata_id='Q1'),
+        ror('r1', 'A College', 'https://a.edu'),
         ipeds(1, 'A College', 'https://a.edu'),
-        ror('r2', 'B College', 'https://b.edu', wikidata_id='Q2'),
+        ror('r2', 'B College', 'https://b.edu'),
         ipeds(2, 'B College', 'https://b.edu'),
     )
-    out, _ = merge_duplicates(df)
-    for col in ('unitid', 'ror_id', 'wikidata_id'):
-        assert out[col].is_unique
+    extra = pd.DataFrame({'ror_id': ['r1'], 'unitid': [9]})
+    new = new_extra_unitids(report_duplicates(df), extra)
+    assert dict(zip(new['ror_id'], new['unitid'])) == {'r2': 2}
 
 
 def test_find_duplicates_empty():
