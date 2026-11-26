@@ -256,6 +256,19 @@ os_institutions.loader csv <path>` exports the dataset to CSV.
 | Wikidata | Realtime |
 | Wikipedia | Realtime |
 
+### Duplicate institutions
+
+An IPEDS institution is linked to its ROR record only through a known unitid
+(Wikidata or `extra_unitids.csv`). Without it the dataset used to hold two
+records for one institution: the ROR record without a unitid, and an IPEDS-only
+record without a ror_id. After the blacklists,
+[`duplicates.py`](./os_institutions/duplicates.py) merges such a pair when the
+IPEDS website and a ROR/Wikidata website have the same domain, the IPEDS name
+equals one of the ROR/Wikidata names (ignoring case, `&` and punctuation), the
+country and US state agree, and the pairing is one to one. Every candidate
+pair, merged or skipped with the reason, is written to
+`artifacts/dataset/merged_duplicates.csv`.
+
 ### Blacklists
 
 Rows that are dropped from the dataset at build time are documented in

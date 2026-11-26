@@ -88,6 +88,7 @@ stages:
     cmd: python -m os_institutions.dataset build
     deps:
       - os_institutions/dataset.py
+      - os_institutions/duplicates.py
       - os_institutions/schema_model.py
       - os_institutions/data
       - artifacts/ror/ror.parquet
@@ -96,6 +97,7 @@ stages:
       - artifacts/ipeds/ipeds.parquet
     outs:
       - artifacts/dataset/institutions.parquet
+      - artifacts/dataset/merged_duplicates.csv
     metrics:
       - metrics/dataset.json:
           cache: false
