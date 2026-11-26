@@ -11,6 +11,7 @@ from os_normalizer.uri import (
 )
 
 from os_institutions.matcher import format
+from os_institutions.matcher.denylist import is_shared_host
 
 
 @dataclass
@@ -85,6 +86,12 @@ class InstitutionMatcher:
                 return self.institutions[idx]
         return None
 
+    def lookup_url(self, key: str | None):
+        """Look up a normalized URL key, ignoring shared hosts."""
+        if is_shared_host(key):
+            return None
+        return self.lookup(key)
+
     def match(
         self,
         url: str | None,
@@ -109,21 +116,21 @@ class InstitutionMatcher:
             return match
         if unitid is not None and (match := self.lookup(str(unitid))):
             return match
-        if match := self.lookup(get_full_url(url)):
+        if match := self.lookup_url(get_full_url(url)):
             return match
-        if match := self.lookup(get_full_url(source_url)):
+        if match := self.lookup_url(get_full_url(source_url)):
             return match
-        if match := self.lookup(get_domain_url(url)):
+        if match := self.lookup_url(get_domain_url(url)):
             return match
-        if match := self.lookup(get_domain_url(source_url)):
+        if match := self.lookup_url(get_domain_url(source_url)):
             return match
         if match := self.lookup(school_name):
             return match
-        if match := self.lookup(get_base_domain_url(url)):
+        if match := self.lookup_url(get_base_domain_url(url)):
             return match
-        if match := self.lookup(get_base_domain_url(source_url)):
+        if match := self.lookup_url(get_base_domain_url(source_url)):
             return match
-        if match := self.lookup(get_email_domain_url(email)):
+        if match := self.lookup_url(get_email_domain_url(email)):
             return match
-        if match := self.lookup(get_email_base_domain_url(email)):
+        if match := self.lookup_url(get_email_base_domain_url(email)):
             return match

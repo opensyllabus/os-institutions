@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 from os_institutions import loader, runs
 from os_institutions.matcher import format
+from os_institutions.matcher.denylist import is_shared_host
 from os_institutions.paths import artifact_path
 
 STAGE = "matcher"
@@ -33,7 +34,8 @@ def normalize_urls(urls):
     full_urls = map(get_full_url, urls)
     domain_urls = map(get_domain_url, urls)
     urls = filter(not_none, chain(full_urls, domain_urls))
-    return list(urls)
+    # Keys on shared hosts (facebook.com, ...) would match every page there
+    return [url for url in urls if not is_shared_host(url)]
 
 
 def normalize_names(names):
