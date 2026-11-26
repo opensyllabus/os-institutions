@@ -1,49 +1,186 @@
-ror_id,unitid
-00py6z575,122320
-046ekqm80,157854
-034pm2g80,224615
-04p491231,214777
-03thxbc14,210368
-00b30xv10,215062
-03tzaeb71,141963
-05vhh0619,225308
-032hvdr57,165945
-058aed112,117681
-05h7xva58,130697
-05pvfsz50,174738
-02p5xjf12,227368
-020qm1538,110501
-00453a208,190035
-01mtkd993,103529
-02w0trx84,180461
-01gwn6z70,122791
-01vwr6t80,217864
-0158z1f36,439145
-044tz3m61,222992
-001pe5g24,482680
-03fm7wh60,198455
-03sxdvx36,182519
-00tye4g05,199449
-03nwf3f39,155186
-050qj5m48,161280
-012mef835,482149
-03w69rv70,153311
-00qxqw753,122782
-05vt9qd57,186380
-015hh0z25,483036
-00pfvfk73,130907
-02em8e723,198084
-01244fm76,221768
-02dde7839,114831
-002j9jj25,212878
-004x1qr23,112376
-04kc77756,179308
-02e6pdw39,117575
-02qf7zp16,153533
-02bdat184,177995
-02j5qmn70,122117
-02pys4392,439190
-00mvndc02,150987
-03ye76s02,240596
-04keq6987,490805
-003wb2x77,488730
+ror_id,unitid,notes
+00py6z575,122320,
+046ekqm80,157854,
+034pm2g80,224615,
+04p491231,214777,
+03thxbc14,210368,
+00b30xv10,215062,
+03tzaeb71,141963,
+05vhh0619,225308,
+032hvdr57,165945,
+058aed112,117681,
+05h7xva58,130697,
+05pvfsz50,174738,
+02p5xjf12,227368,
+020qm1538,110501,
+00453a208,190035,
+01mtkd993,103529,
+02w0trx84,180461,
+01gwn6z70,122791,
+01vwr6t80,217864,
+0158z1f36,439145,
+044tz3m61,222992,
+001pe5g24,482680,
+03fm7wh60,198455,
+03sxdvx36,182519,
+00tye4g05,199449,
+03nwf3f39,155186,
+050qj5m48,161280,
+012mef835,482149,
+03w69rv70,153311,
+00qxqw753,122782,
+05vt9qd57,186380,
+015hh0z25,483036,
+00pfvfk73,130907,
+02em8e723,198084,
+01244fm76,221768,
+02dde7839,114831,
+002j9jj25,212878,
+004x1qr23,112376,
+04kc77756,179308,
+02e6pdw39,117575,
+02qf7zp16,153533,
+02bdat184,177995,
+02j5qmn70,122117,
+02pys4392,439190,
+00mvndc02,150987,
+03ye76s02,240596,
+04keq6987,490805,
+003wb2x77,488730,
+052farg34,102313,Same domain trenholmstate.edu and place US-AL; IPEDS 'H Councill Trenholm State Community College' = ROR 'H. Councill Trenholm State Community College' (dataset names)
+03mt1jy53,104586,"Same domain prescott.erau.edu and place US-AZ; IPEDS 'Embry–Riddle Aeronautical University, Prescott Campus' = ROR 'Embry-Riddle Aeronautical University, Prescott Campus' (Wikidata alias)"
+05ka3vy68,105677,Same domain roberto-venn.com and place US-AZ; IPEDS 'Roberto-Venn School of Luthiery' = ROR 'Roberto-Venn School of Luthiery' (dataset names)
+03nb5d893,108269,Same domain acchs.edu and place US-CA; IPEDS 'Academy of Chinese Culture and Health Sciences' = ROR 'Academy of Chinese Culture and Health Sciences' (dataset names)
+043xyyp36,110060,Same domain buc.edu and place US-CA; IPEDS 'Bethesda University' = ROR 'Bethesda University' (dataset names)
+04sjg0283,112817,Same domain 4cd.edu and place US-CA; IPEDS 'CCCCD' = ROR 'CCCCD' (dataset names)
+00pnyyg32,113582,Same domain disd.edu and place US-CA; IPEDS 'Design Institute of San Diego' = ROR 'Design Institute of San Diego' (dataset names)
+03s68kq02,115287,Same domain gcccd.edu and place US-CA; IPEDS 'Grossmont-Cuyamaca Community College District' = ROR 'Grossmont Cuyamaca Community College District' (dataset names)
+05bc06n36,120023,Same domain nocccd.edu and place US-CA; IPEDS 'North Orange County Community College District' = ROR 'North Orange County Community College District' (dataset names)
+0197qh103,123633,Same domain southbaylo.edu and place US-CA; IPEDS 'South Baylo University' = ROR 'South Baylo University' (dataset names)
+00dmfq477,124557,Same domain ucop.edu and place US-CA; IPEDS 'UCOP' = ROR 'UCOP' (dataset names)
+035h1xx45,126076,Same domain yoec.edu and place US-CA; IPEDS 'Yeshiva Ohr Elchonon Chabad West Coast Talmudical Seminary' = ROR 'Yeshiva Ohr Elchonon Chabad West Coast Talmudical Seminary' (dataset names)
+035vbe686,126359,Same domain belrea.edu and place US-CO; IPEDS 'Bel-Rea Institute of Animal Technology' = ROR 'Bel-Rea Institute of Animal Technology' (dataset names)
+02qwxva96,126748,Same domain cncc.edu and place US-CO; IPEDS 'CNCC' = ROR 'CNCC' (dataset names)
+04mw59b52,127954,Same domain mecr.edu and place US-CO; IPEDS 'Montessori Education Center of the Rockies' = ROR 'Montessori Education Center of the Rockies' (dataset names)
+00wqess70,136701,Same domain svdp.edu and place US-FL; IPEDS 'St. Vincent de Paul Regional Seminary' = ROR 'St. Vincent de Paul Regional Seminary' (dataset names)
+01w466f66,137962,Same domain trinitycollege.edu and place US-FL; IPEDS 'Trinity College of Florida' = ROR 'Trinity College of Florida' (dataset names)
+01cyx8116,139278,Same domain westgatech.edu and place US-GA; IPEDS 'West Georgia Technical College' = ROR 'West Georgia Technical College' (dataset names)
+02vt55417,143297,Same domain brcn.edu and place US-IL; IPEDS 'Blessing Rieman College of Nursing and Health Sciences' = ROR 'Blessing-Rieman College of Nursing & Health Sciences' (dataset names)
+01ncz5595,147129,Same domain methodistcol.edu and place US-IL; IPEDS 'Methodist College' = ROR 'Methodist College' (dataset names)
+017g1tr52,147396,Same domain morrisontech.edu and place US-IL; IPEDS 'Morrison Institute of Technology' = ROR 'Morrison Institute of Technology' (dataset names)
+04c4hz115,151102,Same domain pfw.edu and place US-IN; IPEDS 'Purdue-Fort Wayne' = ROR ' Purdue Fort Wayne' (dataset names)
+03eftgw80,151111,Same domain indianapolis.iu.edu and place US-IN; IPEDS 'Indiana University-Indianapolis' = ROR 'Indiana University Indianapolis' (dataset names)
+03w9z9x42,156231,Same domain ashland.kctcs.edu and place US-KY; IPEDS 'ACTC' = ROR 'ACTC' (dataset names)
+05hrp0b43,160010,Same domain nltcc.edu and place US-LA; IPEDS 'Northwest Louisiana Technical Community College' = ROR 'Northwest Louisiana Technical Community College' (dataset names)
+02q094x95,160667,Same domain northshorecollege.edu and place US-LA; IPEDS 'Northshore Technical Community College' = ROR 'Northshore Technical Community College' (dataset names)
+00vxbe865,161484,Same domain nmcc.edu and place US-ME; IPEDS 'Northern Maine Community College' = ROR 'Northern Maine Community College' (dataset names)
+03dakdm13,163976,Same domain sjc.edu and place US-MD; IPEDS 'SJC' = ROR 'SJC' (dataset names)
+03b325x62,167464,Same domain psjs.edu and place US-MA; IPEDS 'Pope St John XXIII National Seminary' = ROR 'Pope St. John XXIII National Seminary' (dataset names)
+00a0y1f58,173683,Same domain hazeldenbettyford.org and place US-MN; IPEDS 'Hazelden Betty Ford Graduate School of Addiction Studies' = ROR 'Hazelden Betty Ford Graduate School of Addiction Studies' (Wikidata label)
+02h6mhy16,174525,Same domain oakhills.edu and place US-MN; IPEDS 'Oak Hills Christian College' = ROR 'Oak Hills Christian College' (dataset names)
+04kqgqa72,175999,Same domain mississippi.edu and place US-MS; IPEDS 'IHL' = ROR 'IHL' (dataset names)
+04p5ezw03,176770,Same domain coxcollege.edu and place US-MO; IPEDS 'Cox College' = ROR 'Cox College' (dataset names)
+030de3d66,178077,Same domain merrelluniversity.edu and place US-MO; IPEDS 'Merrell University of Beauty Arts & Science' = ROR 'Merrell University of Beauty Arts and Science' (dataset names)
+05db4h730,180878,Same domain bryanhealthcollege.edu and place US-NE; IPEDS 'Bryan College of Health Sciences' = ROR 'Bryan College of Health Sciences' (dataset names)
+05x0zqa09,181491,Same domain northeast.edu and place US-NE; IPEDS 'Northeast Community College' = ROR 'Northeast Community College' (dataset names)
+045znsy82,183114,Same domain rivervalley.edu and place US-NH; IPEDS 'River Valley Community College' = ROR 'River Valley Community College' (dataset names)
+00qc4yc66,187912,Same domain nmmi.edu and place US-NM; IPEDS 'New Mexico Military Institute' = ROR 'New Mexico Military Institute' (dataset names)
+035k7dd86,188021,Same domain grants.nmsu.edu and place US-NM; IPEDS 'New Mexico State University-Grants' = ROR 'New Mexico State University Grants' (dataset names)
+02a1nbm25,194116,Same domain nysid.edu and place US-NY; IPEDS 'New York School of Interior Design' = ROR 'New York School of Interior Design' (dataset names)
+03e8zd719,195438,Same domain shoryoshuv.org and place US-NY; IPEDS 'Sh'or Yoshuv Rabbinical College' = ROR 'Sh'or Yoshuv Rabbinical College' (dataset names)
+025320p83,195988,Same domain sunysullivan.edu and place US-NY; IPEDS 'Sullivan County Community College' = ROR 'Sullivan County Community College' (dataset names)
+05g7f8997,196431,Same domain tsot.edu and place US-NY; IPEDS 'Talmudical Seminary Oholei Torah' = ROR 'Talmudical Seminary Oholei Torah' (dataset names)
+04r030w90,197674,Same domain yeshivaofnitra.org and place US-NY; IPEDS 'Yeshiva of Nitra Rabbinical College' = ROR 'Yeshiva of Nitra Rabbinical College' (dataset names)
+01vqm0433,197966,Same domain beaufortccc.edu and place US-NC; IPEDS 'Beaufort County Community College' = ROR 'Beaufort County Community College' (dataset names)
+04czy3x31,198677,Same domain heritagebiblecollege.edu and place US-NC; IPEDS 'Heritage Bible College' = ROR 'Heritage Bible College' (dataset names)
+05vsymj75,198914,Same domain mayland.edu and place US-NC; IPEDS 'Mayland Community College' = ROR 'Mayland Community College' (dataset names)
+0566a8c54,199175,Same domain northcarolina.edu and place US-NC; IPEDS 'UNC System' = ROR 'UNC System' (dataset names)
+030gep771,199467,Same domain roanokechowan.edu and place US-NC; IPEDS 'R-CCC' = ROR 'R-CCC' (dataset names)
+01wm9rt41,199494,Same domain rccc.edu and place US-NC; IPEDS 'Rowan-Cabarrus Community College' = ROR 'Rowan-Cabarrus Community College' (dataset names)
+00gs3en43,199971,Same domain carolina.edu and place US-NC; IPEDS 'Carolina Christian College' = ROR 'Carolina Christian College' (dataset names)
+03f9f1d95,200697,Same domain afit.edu and place US-OH; IPEDS 'AFIT' = ROR 'AFIT' (dataset names)
+04fszdm13,201061,Same domain artacademy.edu and place US-OH; IPEDS 'AAC' = ROR 'AAC' (dataset names)
+05a7av867,203067,Same domain huc.edu and place US-NY; IPEDS 'Hebrew Union College-Jewish Institute of Religion' = ROR 'Hebrew Union College - Jewish Institute of Religion' (dataset names)
+04a5h3b47,203331,Same domain egcc.edu and place US-OH; IPEDS 'Eastern Gateway Community College' = ROR 'Eastern Gateway Community College' (dataset names)
+003fgzm76,204176,Same domain mccn.edu and place US-OH; IPEDS 'Mount Carmel College of Nursing' = ROR 'Mount Carmel College of Nursing' (dataset names)
+028b5s745,206154,Same domain tsbc.edu and place US-OH; IPEDS 'Tri-State Bible College' = ROR 'Tri-State Bible College' (dataset names)
+03pq5wv02,210508,Same domain avaopera.org and place US-PA; IPEDS 'Academy of Vocal Arts' = ROR 'Academy of Vocal Arts' (dataset names)
+00ymrc254,211893,Same domain curtis.edu and place US-PA; IPEDS 'Curtis Institute of Music' = ROR 'Curtis Institute of Music' (dataset names)
+04x6yts59,213631,Same domain unitedlutheranseminary.edu and place US-PA; IPEDS 'United Lutheran Seminary' = ROR 'United Lutheran Seminary' (dataset names)
+02w9pf714,215813,Same domain saintvincentseminary.edu and place US-PA; IPEDS 'Saint Vincent Seminary' = ROR 'Saint Vincent Seminary' (dataset names)
+05c2gdy67,216348,Same domain reseminary.edu and place US-PA; IPEDS 'Reformed Episcopal Seminary' = ROR 'Reformed Episcopal Seminary' (dataset names)
+03sv4d295,216940,Same domain williamson.edu and place US-PA; IPEDS 'Williamson College of the Trades' = ROR 'Williamson College of the Trades' (dataset names)
+02wwqa894,218858,Same domain cctech.edu and place US-SC; IPEDS 'CCTC' = ROR 'CCTC' (dataset names)
+00cdkww69,218955,Same domain wiltech.edu and place US-SC; IPEDS 'Williamsburg Technical College' = ROR 'Williamsburg Technical College' (dataset names)
+038z78m72,219480,Same domain wdt.edu and place US-SD; IPEDS 'Western Dakota Technical College' = ROR 'Western Dakota Technical College' (dataset names)
+001gb1j79,219505,Same domain abcnash.edu and place US-TN; IPEDS 'American Baptist College' = ROR 'American Baptist College' (dataset names)
+0033b8372,225201,Same domain hallmarkuniversity.edu and place US-TX; IPEDS 'Hallmark University' = ROR 'Hallmark University' (dataset names)
+045mf8339,228486,Same domain swcc.edu and place US-TX; IPEDS 'Southwestern Christian College' = ROR 'Southwestern Christian College' (dataset names)
+03m6ee736,231165,Same domain vermontstate.edu and place US-VT; IPEDS 'Vermont State University' = ROR 'Vermont State University' (dataset names)
+00e0kg276,232885,Same domain sentara.edu and place US-VA; IPEDS 'Sentara College of Health Sciences' = ROR 'Sentara College of Health Sciences' (dataset names)
+04dy4th59,233356,Same domain bsmcon.edu and place US-VA; IPEDS 'Bon Secours Memorial College of Nursing' = ROR 'Bon Secours Memorial College of Nursing' (dataset names)
+031ew8w25,239309,Same domain miad.edu and place US-WI; IPEDS 'MIAD' = ROR 'MIAD' (dataset names)
+00tc79f78,260813,Same domain plattcolorado.edu and place US-CO; IPEDS 'Platt College-Aurora' = ROR 'Platt College Aurora' (dataset names)
+01yh59845,262165,Same domain montanabiblecollege.edu and place US-MT; IPEDS 'Montana Bible College' = ROR 'Montana Bible College' (dataset names)
+014dwa961,366003,Same domain sfbc.edu and place US-FL; IPEDS 'SFBC&TS' = ROR 'SFBC&TS' (dataset names)
+015z60w50,379782,Same domain paralegal.edu and place US-TX; IPEDS 'Center for Advanced Legal Studies' = ROR 'Center for Advanced Legal Studies' (dataset names)
+03nmnmt74,383020,Same domain acupuncture.edu and place US-WI; IPEDS 'Midwest College of Oriental Medicine' = ROR 'Midwest College of Oriental Medicine' (Wikidata label)
+00b6wzg36,384306,Same domain aimc.edu and place US-CA; IPEDS 'AIMC' = ROR 'AIMC' (dataset names)
+02eneb966,401223,Same domain wmu.edu and place US-CA; IPEDS 'World Mission University' = ROR 'World Mission University' (dataset names)
+03m0pn190,401250,Same domain yosan.edu and place US-CA; IPEDS 'Yo San University' = ROR 'Yo San University' (dataset names)
+0215jzs21,420538,Same domain asumh.edu and place US-AR; IPEDS 'Arkansas State University-Mountain Home' = ROR 'Arkansas State University Mountain Home' (dataset names)
+014qpa824,428453,Same domain minnstate.edu and place US-MN; IPEDS 'Minnesota State' = ROR 'Minnesota State' (dataset names)
+03mv9kp97,429094,Same domain aoma.edu and place US-TX; IPEDS 'AOMA Graduate School of Integrative Medicine' = ROR 'AOMA Graduate School of Integrative Medicine' (dataset names)
+00wzhk182,433004,Same domain auhs.edu and place US-CA; IPEDS 'American University of Health Sciences' = ROR 'American University of Health Sciences' (dataset names)
+02de22795,434441,Same domain fcim.edu and place US-FL; IPEDS 'FCIM' = ROR 'FCIM' (dataset names)
+03ykmm292,437608,Same domain abcrgv.com and place US-TX; IPEDS 'Advanced Barber College and Hair Design' = ROR 'Advanced Barber College & Hair Design' (dataset names)
+00b5ztt43,438665,Same domain rsccd.edu and place US-CA; IPEDS 'RSCCD' = ROR 'RSCCD' (dataset names)
+04wpk4a30,439446,Same domain atom.edu and place US-FL; IPEDS 'Atlantic Institute of Oriental Medicine' = ROR 'Atlantic Institute of Oriental Medicine' (dataset names)
+03ccevd14,439783,Same domain nyctcm.edu and place US-NY; IPEDS 'New York College of Traditional Chinese Medicine' = ROR 'New York College of Traditional Chinese Medicine' (dataset names)
+00gej0269,439969,Same domain amcollege.edu and place US-FL; IPEDS 'Acupuncture and Massage College' = ROR 'Acupuncture And Massage College' (dataset names)
+03g9mpe61,440004,Same domain uvei.edu and place US-NH; IPEDS 'Upper Valley Educators Institute' = ROR 'Upper Valley Educators Institute' (dataset names)
+039ngxv93,441070,Same domain sagchip.edu and place US-MI; IPEDS 'Saginaw Chippewa Tribal College' = ROR 'Saginaw Chippewa Tribal College' (dataset names)
+024fwqd79,443076,Same domain hoodseminary.edu and place US-NC; IPEDS 'Hood Theological Seminary' = ROR 'Hood Theological Seminary' (dataset names)
+02k8h2m07,443340,Same domain williamsoncc.edu and place US-TN; IPEDS 'Williamson Christian College' = ROR 'Williamson Christian College' (dataset names)
+03pvphy63,444103,Same domain bcs.edu and place US-PA; IPEDS 'Byzantine Catholic Seminary of Saints Cyril and Methodius' = ROR 'Byzantine Catholic Seminary of Saints Cyril and Methodius' (dataset names)
+05ppaxj51,444699,Same domain orientalmedicine.edu and place US-HI; IPEDS 'Institute of Clinical Acupuncture & Oriental Medicine' = ROR 'Institute of Clinical Acupuncture and Oriental Medicine' (dataset names)
+04gdyqq92,444778,Same domain charlottechristian.edu and place US-NC; IPEDS 'CCCTS' = ROR 'CCCTS' (dataset names)
+00cwxbd63,446039,Same domain asaom.edu and place US-AZ; IPEDS 'Arizona School of Acupuncture and Oriental Medicine' = ROR 'Arizona School of Acupuncture and Oriental Medicine' (dataset names)
+05wc4jq58,446233,Same domain ecollege.edu and place US-AR; IPEDS 'Ecclesia College' = ROR 'Ecclesia College' (dataset names)
+00yckme16,446598,Same domain ucha.edu and place US-NE; IPEDS 'Universal College of Healing Arts' = ROR 'Universal College of Healing Arts' (dataset names)
+049wrhp57,447698,Same domain pihma.edu and place US-AZ; IPEDS 'Phoenix Institute of Herbal Medicine & Acupuncture' = ROR 'Phoenix Institute of Herbal Medicine and Acupuncture' (dataset names)
+02c6xtt27,447801,Same domain uewm.edu and place US-CA; IPEDS 'University of East-West Medicine' = ROR 'University of East-West Medicine' (dataset names)
+0152qkr29,448336,Same domain asusystem.edu and place US-AR; IPEDS 'Arkansas State University System' = ROR 'Arkansas State University System' (dataset names)
+04qm1zm15,449348,Same domain huntsvillebiblecollege.org and place US-AL; IPEDS 'Huntsville Bible College' = ROR 'Huntsville Bible College' (dataset names)
+02dq20r43,449481,Same domain dragonrises.edu and place US-FL; IPEDS 'Dragon Rises College of Oriental Medicine' = ROR 'Dragon Rises College of Oriental Medicine' (dataset names)
+05k6xb467,449764,Same domain visible.edu and place US-TN; IPEDS 'Visible Music College' = ROR 'Visible Music College' (dataset names)
+03t1tgz69,451079,Same domain acupuncturist.edu and place US-FL; IPEDS 'Academy for Five Element Acupuncture' = ROR 'Academy for Five Element Acupuncture' (dataset names)
+04cfmv025,454838,Same domain itea.edu and place US-CO; IPEDS 'Institute of Taoist Education and Acupuncture' = ROR 'Institute of Taoist Education and Acupuncture' (dataset names)
+05c686207,455178,Same domain daoisttraditions.edu and place US-NC; IPEDS 'Daoist Traditions College of Chinese Medical Arts' = ROR 'Daoist Traditions College of Chinese Medical Arts' (dataset names)
+02j787g88,455381,Same domain skinscienceinstitute.com and place US-UT; IPEDS 'Skin Science Institute' = ROR 'Skin Science Institute' (dataset names)
+05xphj289,455813,Same domain johnpaulii.edu and place US-DC; IPEDS 'Pontifical John Paul II Institute for Studies on Marriage and Family' = ROR 'Pontifical John Paul II Institute for Studies on Marriage and Family' (dataset names)
+05c0t9w87,455992,Same domain vcfa.edu and place US-VT; IPEDS 'VCFA' = ROR 'VCFA' (dataset names)
+01yvchj11,457226,Same domain horizonuniversity.edu and place US-IN; IPEDS 'Horizon University' = ROR 'Horizon University' (dataset names)
+00a264q56,457271,Same domain ajrca.edu and place US-CA; IPEDS 'Academy for Jewish Religion California' = ROR 'Academy for Jewish Religion California' (dataset names)
+03k9yfc35,457402,Same domain uftl.edu and place US-FL; IPEDS 'University of Fort Lauderdale' = ROR 'University of Fort Lauderdale' (dataset names)
+01x7teq58,457697,Same domain cityvision.edu and place US-MO; IPEDS 'City Vision University' = ROR 'City Vision University' (dataset names)
+02hf48750,459374,Same domain spatrainingacademy.edu and place US-IL; IPEDS 'Universal Spa Training Academy' = ROR 'Universal Spa Training Academy' (dataset names)
+051rq2a77,461120,Same domain ogs.edu and place US-TN; IPEDS 'Omega Graduate School' = ROR 'Omega Graduate School' (dataset names)
+005b4rt94,461139,Same domain jungtao.edu and place US-NC; IPEDS 'Jung Tao School of Classical Chinese Medicine' = ROR 'Jung Tao School of Classical Chinese Medicine' (dataset names)
+04j68nv27,461883,Same domain maufl.edu and place US-FL; IPEDS 'Millennia Atlantic University' = ROR 'Millennia Atlantic University' (dataset names)
+058vwqx43,462044,Same domain idsva.edu and place US-ME; IPEDS 'IDSVA' = ROR 'IDSVA' (dataset names)
+001sfpp23,475033,Same domain relay.edu and place US-NY; IPEDS 'Relay Graduate School of Education' = ROR 'Relay Graduate School of Education' (dataset names)
+03s0c9350,475237,Same domain ua-edu.us and place US-CA; IPEDS 'The University of America' = ROR 'University of America' (dataset names)
+05d6xwf62,480790,Same domain rvu.edu and place US-CO; IPEDS 'Rocky Vista University' = ROR 'Rocky Vista University' (dataset names)
+01qfzbz52,480967,Same domain cmn.edu and place US-OK; IPEDS 'College of the Muscogee Nation' = ROR 'College of the Muscogee Nation' (dataset names)
+000z2fe63,481058,Same domain gm.edu and place US-CA; IPEDS 'Grace Mission University' = ROR 'Grace Mission University' (dataset names)
+00tqb5b32,481401,Same domain gsot.edu and place US-TX; IPEDS 'Grace School of Theology' = ROR 'Grace School of Theology' (dataset names)
+01jc8rs51,483780,Same domain wust.edu and place US-VA; IPEDS 'IGlobal University' = ROR 'IGlobal University' (dataset names)
+04w4h5c56,484871,Same domain rabbinicalcollegeohryisroel.com and place US-NY; IPEDS 'Rabbinical College Ohr Yisroel' = ROR 'Rabbinical College Ohr Yisroel' (dataset names)
+01y5kcv82,484932,Same domain bridgevalley.edu and place US-WV; IPEDS 'BridgeValley Community & Technical College' = ROR 'BridgeValley Community and Technical College' (dataset names)
+03jt0v447,485403,Same domain hthgse.edu and place US-CA; IPEDS 'High Tech High Graduate School of Education' = ROR 'High Tech High Graduate School of Education' (dataset names)
+01xaca322,487649,Same domain ciam.edu and place US-CA; IPEDS 'California Institute of Advanced Management' = ROR 'California Institute of Advanced Management' (dataset names)
+01n7ngw29,488721,Same domain nationsu.edu and place US-LA; IPEDS 'NationsUniversity' = ROR 'NationsUniversity' (dataset names)
+04705pk24,491507,Same domain cims.edu and place US-CA; IPEDS 'California Institute of Medical Science' = ROR 'California Institute Of Medical Science' (dataset names)
+055hzkr52,498483,Same domain galencollege.edu and place US-KY; IPEDS 'Galen College of Nursing' = ROR 'Galen College of Nursing' (dataset names)
+01w8vjw54,498571,Same domain pennwest.edu and place US-PA; IPEDS 'Pennsylvania Western University' = ROR 'Pennsylvania Western University' (dataset names)

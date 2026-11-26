@@ -269,9 +269,15 @@ appends them to [`extra_unitids.csv`](./os_institutions/data/extra_unitids.csv);
 the next build links them like any other known unitid. A pair is added when the
 two records share a website domain and a name (ignoring case, `&` and
 punctuation), the country and US state agree, and the pairing is one to one.
-Existing `extra_unitids.csv` rows are never changed. `--report <path>` writes
-every candidate pair, added or skipped with the reason, as CSV; `--no-write`
-only reports. Review the diff of `extra_unitids.csv` before committing.
+Pairs whose names differ, or that are ambiguous, get a second look on Wikidata
+(the QLever mirror; `--no-wikidata` to skip): its labels, aliases, official and
+short names and predecessor/successor names, for the ROR record's item and for
+the item carrying the IPEDS unitid, count as names, and an ambiguous pair is
+settled when the ROR item lists exactly one candidate unitid. Each added row has
+a `notes` column saying why (domain, place, the names that matched and where
+the match came from). Existing `extra_unitids.csv` rows are never changed.
+`--report <path>` writes every candidate pair, added or skipped with the
+reason, as CSV; `--no-write` only reports. Review the diff of `extra_unitids.csv` before committing.
 
 ### Blacklists
 

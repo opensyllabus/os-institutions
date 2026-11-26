@@ -55,6 +55,14 @@ def ror(ror_id, name, url, state='US-NE', country='US', **kw):
     } | kw
 
 
+def links_with(df, lookup):
+    new = new_extra_unitids(
+        report_duplicates(df, lookup),
+        pd.DataFrame({'ror_id': [], 'unitid': []}),
+    )
+    return dict(zip(new['ror_id'], new['unitid']))
+
+
 def links(df):
     """The (ror_id -> unitid) links the duplicates report would add."""
     new = new_extra_unitids(
@@ -216,6 +224,78 @@ def test_existing_extra_unitids_are_kept():
     extra = pd.DataFrame({'ror_id': ['r1'], 'unitid': [9]})
     new = new_extra_unitids(report_duplicates(df), extra)
     assert dict(zip(new['ror_id'], new['unitid'])) == {'r2': 2}
+
+
+def fake_lookup(by_qid=None, by_unitid=None, unitids_of_qid=None):
+    def lookup(qids, unitids):
+        return (
+            by_qid or {},
+            by_unitid or {},
+            unitids_of_qid or {},
+        )
+
+    return lookup
+
+
+def test_wikidata_alias_resolves_name_difference():
+    df = frame(
+        ror('r1', 'Pinchot University', 'https://p.edu', wikidata_id='Q1'),
+        ipeds(1, 'Presidio Graduate School', 'https://p.edu'),
+    )
+    assert links(df) == {}
+    lookup = fake_lookup(
+        {'Q1': [('Wikidata alias', 'Presidio Graduate School')]}
+    )
+    report = report_duplicates(df, lookup)
+    assert list(report['decision']) == ['merge']
+    assert '(Wikidata alias)' in report['notes'][0]
+    assert 'Presidio Graduate School' in report['notes'][0]
+
+
+def test_wikidata_name_still_needs_same_place():
+    df = frame(
+        ror('r1', 'Other Name', 'https://p.edu', wikidata_id='Q1'),
+        ipeds(1, 'Some Name', 'https://p.edu', state='US-IA'),
+    )
+    lookup = fake_lookup({'Q1': [('Wikidata alias', 'Some Name')]})
+    report = report_duplicates(df, lookup)
+    assert list(report['reason']) == ['state or country differs']
+
+
+def test_wikidata_unitid_settles_ambiguity():
+    df = frame(
+        ror('r1', 'Unitek College', 'https://u.edu', wikidata_id='Q1'),
+        ipeds(1, 'Unitek College', 'https://u.edu'),
+        ipeds(2, 'Unitek College', 'https://u.edu'),
+    )
+    assert set(report_duplicates(df)['reason']) == {
+        'ambiguous: several candidates'
+    }
+    report = report_duplicates(df, fake_lookup(unitids_of_qid={'Q1': {'2'}}))
+    merged = report[report['decision'] == 'merge']
+    assert list(merged['unitid']) == [2]
+    assert 'Wikidata Q1 lists unitid 2' in merged['notes'].iloc[0]
+
+
+def test_ambiguity_stays_when_wikidata_names_no_unitid():
+    df = frame(
+        ror('r1', 'Unitek College', 'https://u.edu', wikidata_id='Q1'),
+        ipeds(1, 'Unitek College', 'https://u.edu'),
+        ipeds(2, 'Unitek College', 'https://u.edu'),
+    )
+    assert links_with(df, fake_lookup()) == {}
+
+
+def test_new_links_carry_notes():
+    df = frame(
+        ror('r1', 'A College', 'https://a.edu'),
+        ipeds(1, 'A College', 'https://a.edu'),
+    )
+    new = new_extra_unitids(
+        report_duplicates(df), pd.DataFrame({'ror_id': [], 'unitid': []})
+    )
+    assert list(new.columns) == ['ror_id', 'unitid', 'notes']
+    assert 'Same domain a.edu' in new['notes'][0]
 
 
 def test_find_duplicates_empty():

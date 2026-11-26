@@ -148,7 +148,9 @@ def process(run, inputs):
 def merge_extra_unitids(df):
     logger.info(len(df))
 
-    extra = pd.read_csv(DATA_DIR / 'extra_unitids.csv').convert_dtypes()
+    # `notes` documents each row for reviewers; it is not part of the dataset.
+    extra = pd.read_csv(DATA_DIR / 'extra_unitids.csv')[['ror_id', 'unitid']]
+    extra = extra.convert_dtypes()
     df = pd.merge(df, extra, on='ror_id', how='left')
 
     logger.info(len(df))
