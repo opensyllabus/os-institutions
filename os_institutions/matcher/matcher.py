@@ -11,7 +11,7 @@ from os_normalizer.uri import (
 )
 
 from os_institutions.matcher import format
-from os_institutions.matcher.denylist import is_shared_host
+from os_institutions.matcher.denylist import google_site_key, is_shared_host
 
 
 @dataclass
@@ -103,6 +103,8 @@ class InstitutionMatcher:
         grid_id: str | None,
         unitid: int | None = None,
     ):
+        # Before repair_url, which drops Google Sites URLs
+        site_keys = (google_site_key(url), google_site_key(source_url))
         url = repair_url(url)
         source_url = repair_url(source_url)
         school_name = normalize_school_name(school_name)
@@ -116,6 +118,9 @@ class InstitutionMatcher:
             return match
         if unitid is not None and (match := self.lookup(str(unitid))):
             return match
+        for site_key in site_keys:
+            if match := self.lookup_url(site_key):
+                return match
         if match := self.lookup_url(get_full_url(url)):
             return match
         if match := self.lookup_url(get_full_url(source_url)):

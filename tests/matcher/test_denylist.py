@@ -1,7 +1,7 @@
 import pytest
 
 from os_institutions.matcher.build import build_table, normalize_urls
-from os_institutions.matcher.denylist import is_shared_host
+from os_institutions.matcher.denylist import google_site_key, is_shared_host
 from os_institutions.matcher.matcher import InstitutionMatcher
 
 
@@ -21,7 +21,13 @@ from os_institutions.matcher.matcher import InstitutionMatcher
         'wikipedia.org/wiki',
         'sites.google.com',
         'sites.google.com/view',
+        'sites.google.com/site',
+        'sites.google.com/a',
+        'sites.google.com/a/cidexxi.org',
+        'sites.google.com/moe-dl.edu.my',
         'docs.google.com/x',
+        'drive.google.com/file',
+        'forms.google.com/x',
         'archive.org/web',
         'curricunet.com',
         'curriqunet.com',
@@ -49,6 +55,9 @@ def test_shared_host(key):
         'box.com',
         'facebook.com.example.edu',
         'google.com.br',
+        'sites.google.com/view/kolejvokasionalsandakan2',
+        'sites.google.com/site/centrodeformacaocrista',
+        'sites.google.com/moe-dl.edu.my/kvmiri',
         'mit.edu/x.com',
     ],
 )
@@ -137,3 +146,132 @@ def test_matcher_ignores_shared_host_keys_in_old_tables():
     assert matcher.match(
         'https://www.old.edu/', None, None, None, None, None, None
     )
+
+
+@pytest.mark.parametrize(
+    'url, key',
+    [
+        (
+            'https://sites.google.com/view/kolejvokasionalsandakan2',
+            'sites.google.com/view/kolejvokasionalsandakan2',
+        ),
+        (
+            'https://sites.google.com/view/portalkvbalikpulau/utama',
+            'sites.google.com/view/portalkvbalikpulau',
+        ),
+        ('https://sites.google.com/view/bpbl/', 'sites.google.com/view/bpbl'),
+        (
+            'HTTP://Sites.Google.com/site/centrodeformacaocrista?x=1#y',
+            'sites.google.com/site/centrodeformacaocrista',
+        ),
+        (
+            'sites.google.com/moe-dl.edu.my/kvmiri',
+            'sites.google.com/moe-dl.edu.my/kvmiri',
+        ),
+        (
+            'https://sites.google.com/ceylonspacescience.com/ciss-space-science/home',
+            'sites.google.com/ceylonspacescience.com/ciss-space-science',
+        ),
+    ],
+)
+def test_google_site_key(url, key):
+    assert google_site_key(url) == key
+    assert not is_shared_host(key)
+
+
+@pytest.mark.parametrize(
+    'url',
+    [
+        None,
+        '',
+        'https://sites.google.com/',
+        'https://sites.google.com/view',
+        'https://sites.google.com/view/',
+        'https://sites.google.com/andrew.cmu.edu/',
+        # repair_url already turns these into `<domain>/...`
+        'https://sites.google.com/a/cidexxi.org/cide/home',
+        'https://docs.google.com/document/d/abc',
+        'https://drive.google.com/file/d/1/view',
+        'https://example.edu/view/x',
+    ],
+)
+def test_google_site_key_none(url):
+    assert google_site_key(url) is None
+
+
+def test_google_sites_build_and_match():
+    matcher = _matcher(
+        [
+            dict(
+                name='Kolej Vokasional Sandakan 2',
+                names=['Kolej Vokasional Sandakan 2'],
+                urls=[
+                    'https://sites.google.com/view/kolejvokasionalsandakan2'
+                ],
+            ),
+            dict(
+                name='Kolej Vokasional Miri',
+                names=['Kolej Vokasional Miri'],
+                urls=['https://sites.google.com/moe-dl.edu.my/kvmiri'],
+            ),
+            dict(
+                name='Kolej Vokasional Keningau',
+                names=['Kolej Vokasional Keningau'],
+                urls=[
+                    'https://sites.google.com/moe-dl.edu.my/kvkeningau/home'
+                ],
+            ),
+            dict(
+                name='Centro de Estudios Justo Sierra',
+                names=['Centro de Estudios Justo Sierra'],
+                urls=['https://sites.google.com/a/cidexxi.org/cide/home'],
+            ),
+            dict(
+                name='Docs Only',
+                names=['Docs Only'],
+                urls=['https://docs.google.com/document/d/abc'],
+            ),
+        ]
+    )
+    keys = set(matcher.lookup_table)
+
+    for bare in (
+        'sites.google.com',
+        'sites.google.com/view',
+        'sites.google.com/a',
+        'sites.google.com/moe-dl.edu.my',
+    ):
+        assert bare not in keys
+    assert not any(k.startswith('docs.google.com') for k in keys)
+    assert 'sites.google.com/view/kolejvokasionalsandakan2' in keys
+
+    def name(url, source_url=None):
+        found = matcher.match(url, source_url, None, None, None, None, None)
+        return found and found['name']
+
+    assert (
+        name('https://sites.google.com/view/kolejvokasionalsandakan2/home')
+        == 'Kolej Vokasional Sandakan 2'
+    )
+    assert (
+        name(None, 'https://sites.google.com/view/kolejvokasionalsandakan2')
+        == 'Kolej Vokasional Sandakan 2'
+    )
+    # Two sites of one Workspace domain stay distinct
+    assert (
+        name('https://sites.google.com/moe-dl.edu.my/kvmiri/home')
+        == 'Kolej Vokasional Miri'
+    )
+    assert (
+        name('https://sites.google.com/moe-dl.edu.my/kvkeningau')
+        == 'Kolej Vokasional Keningau'
+    )
+    assert name('https://sites.google.com/a/cidexxi.org/cide/x') == (
+        'Centro de Estudios Justo Sierra'
+    )
+    # Other people's sites, the bare host and other Google hosts match nothing
+    assert name('https://sites.google.com/view/someone-else') is None
+    assert name('https://sites.google.com/moe-dl.edu.my/other') is None
+    assert name('https://sites.google.com/andrew.cmu.edu/course') is None
+    assert name('https://sites.google.com/') is None
+    assert name('https://docs.google.com/document/d/abc') is None
