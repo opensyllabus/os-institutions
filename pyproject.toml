@@ -5,26 +5,33 @@ description = "Educational and research institutions dataset and matcher, based 
 readme = "README.md"
 authors = [{ name = "Open Syllabus", email = "contact@opensyllabus.org" }]
 requires-python = ">=3.10"
+# What the library needs to load the matcher and the dataset. Everything the
+# pipeline needs lives in the `pipeline` group.
 dependencies = [
     "os-normalizer @ git+https://github.com/opensyllabus/os-normalizer.git@v0.1.1",
     "pandas>=2.2,<3",
     "numpy>=2,<3",
     "pandera>=0.20",
     "pyarrow>=17",
-    "typer>=0.9.0",
-    "requests>=2.24.0,<3",
+    # The dataset schema reads its checks' case lists from YAML.
     "pyyaml>=6.0,<7",
-    "loguru>=0.7.0,<0.8",
-    "tqdm>=4.66.1,<5",
-    "SPARQLWrapper>=1.8.5,<2",
-    "addict>=2.3.0,<3",
 ]
 
 [dependency-groups]
 dev = [
+    { include-group = "pipeline" },
     "pytest>=7.4.0,<8",
     "pytest-mock>=3.7.0,<4",
     "ruff>=0.15.6,<0.16",
+]
+# Dependencies of the pipeline stages and CLIs; not needed to use the library.
+pipeline = [
+    "typer>=0.9.0",
+    "requests>=2.24.0,<3",
+    "loguru>=0.7.0,<0.8",
+    "tqdm>=4.66.1,<5",
+    "SPARQLWrapper>=1.8.5,<2",
+    "addict>=2.3.0,<3",
 ]
 # Pipeline driver; installed only with `--group dvc`.
 dvc = ["dvc==3.67.1"]

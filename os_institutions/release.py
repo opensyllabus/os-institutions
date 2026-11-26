@@ -183,8 +183,8 @@ def load_dataset(
 ):
     """The institutions dataset of a release, or of a local parquet file,
     checked against the dataset schema."""
-    from os_institutions import dataset
+    from os_institutions import loader
 
-    return dataset.load(
+    return loader.load(
         Path(path) if path else fetch('institutions.parquet', version)
     )

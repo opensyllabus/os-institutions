@@ -5,58 +5,16 @@ from typing import NamedTuple
 
 import numpy as np
 import pandas as pd
-import pandera.pandas as pa
 import typer
 from loguru import logger
-from pandera.typing.pandas import DataFrame, Object, Series
 
 from os_institutions import runs
+from os_institutions.loader import STAGE, Schema, load, read  # noqa: F401
 from os_institutions.paths import DATA_DIR, artifact_path
-from os_institutions.schema_model import Dataset
 from os_institutions.sources import ipeds, ror, wikidata, wikipedia
 from os_institutions.utils import read_yaml, write_parquet
 
-STAGE = 'dataset'
-
 app = typer.Typer()
-
-
-class Schema(Dataset):
-    # _id cannot be used w/ Pandera
-    ror_id: Series[pd.StringDtype] = pa.Field(nullable=True)
-    grid_id: Series[pd.StringDtype] = pa.Field(nullable=True)
-    wikidata_id: Series[pd.StringDtype] = pa.Field(nullable=True)
-    unitid: Series[pd.Int64Dtype] = pa.Field(nullable=True)
-    city: Series[pd.StringDtype]
-    name: Series[pd.StringDtype]
-    lat: Series[pd.Float64Dtype] = pa.Field(nullable=True)
-    lng: Series[pd.Float64Dtype] = pa.Field(nullable=True)
-    url: Series[pd.StringDtype] = pa.Field(nullable=True)
-    country_code: Series[pd.StringDtype]
-    country: Series[pd.StringDtype]
-    state_code: Series[pd.StringDtype] = pa.Field(nullable=True)
-    state: Series[pd.StringDtype] = pa.Field(nullable=True)
-    enrollment: Series[pd.Int64Dtype] = pa.Field(nullable=True)
-    two_year: Series[pd.BooleanDtype] = pa.Field(nullable=True)
-    four_year: Series[pd.BooleanDtype] = pa.Field(nullable=True)
-    graduate: Series[pd.BooleanDtype] = pa.Field(nullable=True)
-    research: Series[pd.BooleanDtype] = pa.Field(nullable=True)
-    wikipedia_url: Series[pd.StringDtype] = pa.Field(nullable=True)
-    description: Series[pd.StringDtype] = pa.Field(nullable=True)
-    image_url: Series[pd.StringDtype] = pa.Field(nullable=True)
-    names: Series[Object]
-    urls: Series[Object]
-
-
-def read(path: Path | None = None):
-    path = path or artifact_path(STAGE)
-    logger.info(f'Loading {path}')
-    return pd.read_parquet(path)
-
-
-@pa.check_types
-def load(path: Path | None = None) -> DataFrame[Schema]:
-    return read(path)
 
 
 @app.command()
