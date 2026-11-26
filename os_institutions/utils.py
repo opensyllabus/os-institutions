@@ -3,13 +3,13 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import pandas as pd
-import requests
 import yaml
-from loguru import logger
 
 
 def write_parquet(df, path):
     """Write a stage output, creating its directory."""
+    from loguru import logger
+
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path)
@@ -33,6 +33,9 @@ def read_yaml(path: str, columns=None, dtype=None, pandas=True):
 
 
 def download_zip_file(file_url):
+    import requests
+    from loguru import logger
+
     logger.info(f'Downloading {file_url}')
     resp = requests.get(file_url)
 

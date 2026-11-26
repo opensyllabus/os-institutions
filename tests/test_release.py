@@ -210,10 +210,10 @@ def test_load_matcher_from_a_path_skips_the_network(server, tmp_path):
 
 
 def test_load_dataset_reads_the_release_parquet(server, monkeypatch):
-    from os_institutions import dataset
+    from os_institutions import loader
 
     seen = []
-    monkeypatch.setattr(dataset, 'load', lambda p: seen.append(p) or 'df')
+    monkeypatch.setattr(loader, 'load', lambda p: seen.append(p) or 'df')
     assert os_institutions.load_dataset('1.0.0') == 'df'
     assert seen[0].name == 'institutions.parquet'
     assert os_institutions.load_dataset(path='x.parquet') == 'df'

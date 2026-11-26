@@ -1895,8 +1895,6 @@ name = "os-institutions"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [
-    { name = "addict" },
-    { name = "loguru" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
     { name = "numpy", version = "2.5.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
@@ -1905,45 +1903,63 @@ dependencies = [
     { name = "pandera" },
     { name = "pyarrow" },
     { name = "pyyaml" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "addict" },
+    { name = "loguru" },
+    { name = "pytest" },
+    { name = "pytest-mock" },
+    { name = "requests" },
+    { name = "ruff" },
+    { name = "sparqlwrapper" },
+    { name = "tqdm" },
+    { name = "typer" },
+]
+dvc = [
+    { name = "dvc" },
+]
+pipeline = [
+    { name = "addict" },
+    { name = "loguru" },
     { name = "requests" },
     { name = "sparqlwrapper" },
     { name = "tqdm" },
     { name = "typer" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-mock" },
-    { name = "ruff" },
-]
-dvc = [
-    { name = "dvc" },
-]
-
 [package.metadata]
 requires-dist = [
-    { name = "addict", specifier = ">=2.3.0,<3" },
-    { name = "loguru", specifier = ">=0.7.0,<0.8" },
     { name = "numpy", specifier = ">=2,<3" },
     { name = "os-normalizer", git = "https://github.com/opensyllabus/os-normalizer.git?rev=v0.1.1" },
     { name = "pandas", specifier = ">=2.2,<3" },
     { name = "pandera", specifier = ">=0.20" },
     { name = "pyarrow", specifier = ">=17" },
     { name = "pyyaml", specifier = ">=6.0,<7" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "addict", specifier = ">=2.3.0,<3" },
+    { name = "loguru", specifier = ">=0.7.0,<0.8" },
+    { name = "pytest", specifier = ">=7.4.0,<8" },
+    { name = "pytest-mock", specifier = ">=3.7.0,<4" },
+    { name = "requests", specifier = ">=2.24.0,<3" },
+    { name = "ruff", specifier = ">=0.15.6,<0.16" },
+    { name = "sparqlwrapper", specifier = ">=1.8.5,<2" },
+    { name = "tqdm", specifier = ">=4.66.1,<5" },
+    { name = "typer", specifier = ">=0.9.0" },
+]
+dvc = [{ name = "dvc", specifier = "==3.67.1" }]
+pipeline = [
+    { name = "addict", specifier = ">=2.3.0,<3" },
+    { name = "loguru", specifier = ">=0.7.0,<0.8" },
     { name = "requests", specifier = ">=2.24.0,<3" },
     { name = "sparqlwrapper", specifier = ">=1.8.5,<2" },
     { name = "tqdm", specifier = ">=4.66.1,<5" },
     { name = "typer", specifier = ">=0.9.0" },
 ]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=7.4.0,<8" },
-    { name = "pytest-mock", specifier = ">=3.7.0,<4" },
-    { name = "ruff", specifier = ">=0.15.6,<0.16" },
-]
-dvc = [{ name = "dvc", specifier = "==3.67.1" }]
 
 [[package]]
 name = "os-normalizer"
