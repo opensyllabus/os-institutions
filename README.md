@@ -44,8 +44,12 @@ One tag per release, `vX.Y.Z`, matching the package version. Each release has:
 |---|---|
 | `matcher.json.gz` | The matcher (see "Institution matcher") |
 | `institutions.parquet` | The institutions dataset |
-| `manifest.json` | `version`, `git_sha`, `normalizer_version`, `sources` (the lineage of the inputs: `origin` and the md5 of each stage output in `dvc.lock`), and `assets` (`sha256` and `bytes` of the matcher and the dataset) |
-| `SHA256SUMS` | `shasum -a 256` of the other three files |
+| `crosswalk.csv` | Just the identifier crosswalk of the dataset, as plain CSV: `ror_id`, `grid_id`, `wikidata_id`, `unitid`, `name`. Same columns as `latest.csv` of the retired [institution-identifiers](https://github.com/opensyllabus/institution-identifiers) repository |
+| `manifest.json` | `version`, `git_sha`, `normalizer_version`, `sources` (the lineage of the inputs: `origin` and the md5 of each stage output in `dvc.lock`), and `assets` (`sha256` and `bytes` of the matcher, the dataset, and the crosswalk) |
+| `SHA256SUMS` | `shasum -a 256` of the other four files |
+
+`crosswalk.csv` has a stable URL for scripts, without Python or parquet:
+`https://github.com/opensyllabus/os-institutions/releases/latest/download/crosswalk.csv`
 
 ## Layout
 

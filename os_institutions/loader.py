@@ -18,6 +18,10 @@ logger = logging.getLogger(__name__)
 
 STAGE = 'dataset'
 
+# The columns of the released crosswalk.csv. They are a stable contract: the
+# file replaces latest.csv of opensyllabus/institution-identifiers.
+CROSSWALK_COLUMNS = ['ror_id', 'grid_id', 'wikidata_id', 'unitid', 'name']
+
 
 def read(path: Path | None = None):
     path = path or artifact_path(STAGE)
@@ -33,6 +37,12 @@ def load(path: Path | None = None) -> DataFrame[Schema]:
 def to_csv(path: Path, input: Path | None = None):
     df = read(input)
     df.to_csv(path)
+    logger.info(f'Wrote {len(df)} rows to {path}')
+
+
+def to_crosswalk(path: Path, input: Path | None = None):
+    df = read(input)[CROSSWALK_COLUMNS]
+    df.to_csv(path, index=False)
     logger.info(f'Wrote {len(df)} rows to {path}')
 
 
@@ -54,6 +64,13 @@ if __name__ == '__main__':
         input: Path | None = typer.Option(None, help='Parquet to read.'),
     ):
         to_csv(path, input)
+
+    @app.command()
+    def crosswalk(
+        path: Path,
+        input: Path | None = typer.Option(None, help='Parquet to read.'),
+    ):
+        to_crosswalk(path, input)
 
     @app.command(name='check')
     def check_command(

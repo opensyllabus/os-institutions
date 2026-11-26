@@ -5,6 +5,9 @@
 #                     (default: the DVC outputs under artifacts/)
 # --sources-file FILE JSON recorded as `sources` in manifest.json (default: the
 #                     stage outputs locked in dvc.lock)
+# The crosswalk.csv asset (the five identifier columns of the dataset) is
+# derived from institutions.parquet, with $PYTHON (default python3), which needs
+# pandas and pyarrow.
 # DRY_RUN=1 prints the gh command and the generated files, and makes no
 # network calls. Run it from a clean checkout of the commit to release.
 set -euo pipefail
@@ -61,6 +64,8 @@ for f in "$matcher" "$dataset"; do
 done
 cp -L "$matcher" "$stage/matcher.json.gz"
 cp -L "$dataset" "$stage/institutions.parquet"
+${PYTHON:-python3} -c 'import sys; from pathlib import Path; from os_institutions.loader import to_crosswalk; to_crosswalk(Path(sys.argv[2]), Path(sys.argv[1]))' \
+  "$stage/institutions.parquet" "$stage/crosswalk.csv"
 
 if [[ -n $sources_file ]]; then
   jq -e . "$sources_file" >/dev/null || { echo "$sources_file is not valid JSON." >&2; exit 1; }
@@ -78,7 +83,7 @@ else
   }' >"$work/sources.json"
 fi
 
-for name in matcher.json.gz institutions.parquet; do
+for name in matcher.json.gz institutions.parquet crosswalk.csv; do
   jq -n --arg name "$name" --arg sha "$(shasum -a 256 "$stage/$name" | cut -d' ' -f1)" \
     --argjson bytes "$(wc -c <"$stage/$name" | tr -d ' ')" \
     '{($name): {sha256: $sha, bytes: $bytes}}'
@@ -89,7 +94,7 @@ jq -n --arg version "$version" --arg git_sha "$sha" --arg normalizer "$normalize
   '{version: $version, git_sha: $git_sha, normalizer_version: $normalizer,
     sources: $sources[0], assets: $assets[0]}' >"$stage/manifest.json"
 
-(cd "$stage" && shasum -a 256 matcher.json.gz institutions.parquet manifest.json >SHA256SUMS)
+(cd "$stage" && shasum -a 256 matcher.json.gz institutions.parquet crosswalk.csv manifest.json >SHA256SUMS)
 
 {
   echo "os-institutions $version: the institutions dataset and the matcher built from it."
@@ -109,7 +114,7 @@ jq -n --arg version "$version" --arg git_sha "$sha" --arg normalizer "$normalize
   echo "Load it with \`os_institutions.load_matcher('$tag')\` and \`os_institutions.load_dataset('$tag')\`."
 } >"$work/notes.md"
 
-run gh release create "$tag" "$stage"/matcher.json.gz "$stage"/institutions.parquet "$stage"/manifest.json "$stage"/SHA256SUMS \
+run gh release create "$tag" "$stage"/matcher.json.gz "$stage"/institutions.parquet "$stage"/crosswalk.csv "$stage"/manifest.json "$stage"/SHA256SUMS \
   --target "$sha" --title "os-institutions $tag" --notes-file "$work/notes.md"
 
 if [[ -n ${DRY_RUN:-} ]]; then
