@@ -11,7 +11,7 @@ from os_normalizer.institution import normalize_school_name
 from os_normalizer.uri import get_domain_url, get_full_url
 from tqdm import tqdm
 
-from os_institutions import dataset, runs
+from os_institutions import loader, runs
 from os_institutions.matcher import format
 from os_institutions.paths import artifact_path
 
@@ -157,7 +157,7 @@ def main(
     input = input or artifact_path("dataset")
     with runs.start(STAGE) as run:
         run.add_input(input)
-        df = dataset.load(input)
+        df = loader.load(input)
 
         logger.info("Building institution lookup table")
         table = build_table(df)
