@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 
 import pandas as pd
 import pandera.pandas as pa
+from pandera.typing.pandas import Object, Series
 
 from os_institutions.paths import DATA_DIR
 from os_institutions.utils import read_yaml
@@ -375,3 +376,30 @@ class Wikipedia(pa.DataFrameModel):
     @pa.check("wikipedia_image_url")
     def check_wikipedia_image_url(cls, col):
         return col.str.startswith("https://upload.wikimedia.org/wikipedia/")
+
+
+class Schema(Dataset):
+    # _id cannot be used w/ Pandera
+    ror_id: Series[pd.StringDtype] = pa.Field(nullable=True)
+    grid_id: Series[pd.StringDtype] = pa.Field(nullable=True)
+    wikidata_id: Series[pd.StringDtype] = pa.Field(nullable=True)
+    unitid: Series[pd.Int64Dtype] = pa.Field(nullable=True)
+    city: Series[pd.StringDtype]
+    name: Series[pd.StringDtype]
+    lat: Series[pd.Float64Dtype] = pa.Field(nullable=True)
+    lng: Series[pd.Float64Dtype] = pa.Field(nullable=True)
+    url: Series[pd.StringDtype] = pa.Field(nullable=True)
+    country_code: Series[pd.StringDtype]
+    country: Series[pd.StringDtype]
+    state_code: Series[pd.StringDtype] = pa.Field(nullable=True)
+    state: Series[pd.StringDtype] = pa.Field(nullable=True)
+    enrollment: Series[pd.Int64Dtype] = pa.Field(nullable=True)
+    two_year: Series[pd.BooleanDtype] = pa.Field(nullable=True)
+    four_year: Series[pd.BooleanDtype] = pa.Field(nullable=True)
+    graduate: Series[pd.BooleanDtype] = pa.Field(nullable=True)
+    research: Series[pd.BooleanDtype] = pa.Field(nullable=True)
+    wikipedia_url: Series[pd.StringDtype] = pa.Field(nullable=True)
+    description: Series[pd.StringDtype] = pa.Field(nullable=True)
+    image_url: Series[pd.StringDtype] = pa.Field(nullable=True)
+    names: Series[Object]
+    urls: Series[Object]

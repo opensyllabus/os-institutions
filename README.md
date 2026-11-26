@@ -53,6 +53,7 @@ One tag per release, `vX.Y.Z`, matching the package version. Each release has:
 |---|---|
 | `os_institutions/sources/` | Per-source pipelines: `ipeds`, `ror`, `ror_dist`, `wikidata`, `wikidata_dist`, `wikipedia` |
 | `os_institutions/dataset.py` | Final institutions dataset build (merges the sources) |
+| `os_institutions/loader.py` | Read, load (with schema check), and CSV export of the dataset |
 | `os_institutions/schema_model.py` | Pandera schemas for every artifact |
 | `os_institutions/data/` | Hand-maintained inputs: URL mappings, extra IDs, blacklists |
 | `os_institutions/matcher/` | Institution matcher: build, validate, and runtime lookup |
@@ -131,10 +132,10 @@ python -m os_institutions.dataset build --ror path/to/ror.parquet
 ```
 
 If the build is successful, you can pass it through Pandera checks by running
-the module again with the `check` argument:
+the loader with the `check` argument:
 
 ```sh
-python -m os_institutions.dataset check
+python -m os_institutions.loader check
 ```
 
 The same workflow applies to all pipelines.
@@ -218,12 +219,14 @@ more matching conditions to provision on.
 
 ### Working with a dataset
 
-`read()` is a quick way to use a dataset in a shell or notebook: it reads
+`os_institutions.loader.read()` is a quick way to use a dataset in a shell or notebook: it reads
 the local parquet (by default the stage's output under `artifacts/`, or the
 path you pass) with no checks and no run log.
 
-On the other hand, `load()` is the best way to use a dataset during production
-runs when you want to ensure that the dataset passes its Pandera checks.
+On the other hand, `os_institutions.loader.load()` is the best way to use a dataset during production
+runs when you want to ensure that the dataset passes its Pandera checks
+(the schema is `Schema` in `os_institutions/schema_model.py`). `python -m
+os_institutions.loader csv <path>` exports the dataset to CSV.
 
 ### Stage dependencies
 
