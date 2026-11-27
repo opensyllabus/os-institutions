@@ -99,11 +99,6 @@ class InstitutionMatcher:
         grid_id: str | None,
         unitid: int | None = None,
     ):
-        # Before repair_url, which drops Google Sites URLs
-        url = repair_url(url)
-        source_url = repair_url(source_url)
-        school_name = normalize_school_name(school_name)
-
         # Try all institution IDs in sequence
         if match := self.lookup(wikidata_id):
             return match
@@ -113,10 +108,17 @@ class InstitutionMatcher:
             return match
         if unitid is not None and (match := self.lookup(str(unitid))):
             return match
+            
+        # Before repair_url, which drops Google Sites URLs
         if match := self.lookup(google_site_key(url)):
             return match
         if match := self.lookup(google_site_key(source_url)):
             return match
+
+        url = repair_url(url)
+        source_url = repair_url(source_url)
+        school_name = normalize_school_name(school_name)
+
         if match := self.lookup(get_full_url(url)):
             return match
         if match := self.lookup(get_full_url(source_url)):
