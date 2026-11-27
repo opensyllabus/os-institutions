@@ -25,6 +25,7 @@ from os_institutions.paths import DATA_DIR
 
 DENYLIST_DIR = DATA_DIR / 'denylists'
 
+
 def _read_hosts(name: str) -> frozenset[str]:
     return frozenset(pd.read_csv(DENYLIST_DIR / name)['host'])
 

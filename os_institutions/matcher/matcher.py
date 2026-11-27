@@ -108,7 +108,7 @@ class InstitutionMatcher:
             return match
         if unitid is not None and (match := self.lookup(str(unitid))):
             return match
-            
+
         # Before repair_url, which drops Google Sites URLs
         if match := self.lookup(google_site_key(url)):
             return match
