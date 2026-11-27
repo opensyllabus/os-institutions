@@ -7,10 +7,12 @@ import pandas as pd
 import typer
 from loguru import logger
 from os_normalizer.institution import normalize_school_name
+from os_normalizer.uri import repair_google_sites_url
 from tqdm import tqdm
 
 from os_institutions import loader, runs
 from os_institutions.matcher import format, url_keys
+from os_institutions.matcher.denylist import google_site_key, is_shared_host
 from os_institutions.paths import artifact_path
 
 STAGE = "matcher"
@@ -25,6 +27,14 @@ def read(path: Path | None = None):
     logger.info(f"Loading {path}")
 
     return format.load(path)
+
+
+def repair_site_url(url):
+    """`sites.google.com/a/<domain>/x` is a site of `<domain>`, as the
+    matcher reads it at query time (`repair_url`)."""
+    if url and 'sites.google.com/a/' in url.lower():
+        return repair_google_sites_url(url.lower())
+    return url
 
 
 def normalize_names(names):
@@ -58,7 +68,7 @@ def build_url_references(df):
                 if isinstance(n, str) and n
             ],
             [
-                u
+                repair_site_url(u)
                 for u in (urls if isinstance(urls, (list, tuple)) else [])
                 if isinstance(u, str) and u
             ],
@@ -66,6 +76,14 @@ def build_url_references(df):
         for idx, name, ns, urls in zip(df.index, df["name"], names, df["urls"])
     )
     table = url_keys.build_url_key_table(rows)
+    # Keys on shared hosts (facebook.com, ...) would match every page there
+    table = {k: i for k, i in table.items() if not is_shared_host(k)}
+    # One Google Site is one owner's, see `google_site_key`
+    for idx, urls in zip(df.index, df["urls"]):
+        if isinstance(urls, (list, tuple)):
+            for url in urls:
+                if key := google_site_key(url):
+                    table.setdefault(key, idx)
     refs = pd.DataFrame({"idx": list(table.values()), "ref": list(table)})
     refs["idx"] = refs["idx"].astype("Int64")
 

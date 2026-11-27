@@ -14,7 +14,7 @@ folder is loaded, and a dataset row is dropped if its `unitid` (IPEDS) or
 | `name` | Institution name, for readability only. Not used when building. |
 | `control` | IPEDS ownership: `public`, `private nonprofit`, or `private for-profit`. Empty for ROR-only rows. Informational only. |
 | `reason` | A reason code from the tables below, or free text for a one-off case. |
-| `related` | `branches.csv` only. The parent or the kept institution it conflicts with. A parent that is not in our dataset is marked `(not in dataset)`. |
+| `related` | `branches.csv` and `units.csv` only. The parent or the kept institution it conflicts with. A parent that is not in our dataset is marked `(not in dataset)`. |
 | `checked_on` | Date the row was last reviewed. |
 
 Each ID belongs in exactly one file (enforced by `tests/test_blacklist.py`).
@@ -31,6 +31,7 @@ When a row fits several files, use the first match in the order below.
 | `k12.csv` | `k12` | K-12 school (high, primary, or support school). Not higher education. |
 | `branches.csv` | `branch` | ROR lists a parent institution. `related` is the parent. |
 | `branches.csv` | `shared-domain` | Same web domain as an institution we keep. `related` is one such institution, alphabetically first. |
+| `units.csv` | `unit` | Department, centre, institute, or lab that ROR lists as a child of a kept school on the same domain. Only the schools are kept, so a unit's own URL must not claim a path on its parent's site. `related` is the parent. |
 | `review.csv` | `no-conflict` | No parent and no shared domain with a kept institution. Candidates for reinstating, still to be reviewed. |
 
 A free-text `reason` is also fine in any file when a row has a one-off explanation
