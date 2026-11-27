@@ -184,3 +184,12 @@ ror_id,unitid,notes
 04705pk24,491507,Same domain cims.edu and place US-CA; IPEDS 'California Institute of Medical Science' = ROR 'California Institute Of Medical Science' (dataset names)
 055hzkr52,498483,Same domain galencollege.edu and place US-KY; IPEDS 'Galen College of Nursing' = ROR 'Galen College of Nursing' (dataset names)
 01w8vjw54,498571,Same domain pennwest.edu and place US-PA; IPEDS 'Pennsylvania Western University' = ROR 'Pennsylvania Western University' (dataset names)
+03j70bf39,429085,Name variant of the same school: IPEDS 'American College of Acupuncture and Oriental Med' = ROR 'American College of Acupuncture & Oriental Medicine'; same domain acaom.edu (reviewed by hand)
+02kt0tf86,194569,Name variant of the same school: IPEDS 'Davis College' = ROR 'Davis College - New York'; same domain davisny.edu (reviewed by hand)
+05v1a4y27,242626,"Name variant of the same school: IPEDS 'Inter American University of Puerto Rico-Aguadilla' = ROR 'Universidad Interamericana de Puerto Rico, Recinto de Aguadilla'; same domain aguadilla.inter.edu (reviewed by hand)"
+03xcscc48,242635,"Name variant of the same school: IPEDS 'Inter American University of Puerto Rico-Arecibo' = ROR 'Inter American University of Puerto Rico, Arecibo Campus'; same domain arecibo.inter.edu (reviewed by hand)"
+01vw8fh89,187620,Name variant of the same school: IPEDS 'New Mexico State University-Dona Ana' = ROR 'Doña Ana Community College'; same domain dacc.nmsu.edu (reviewed by hand)
+04xj4zj95,219426,Name variant of the same school: IPEDS 'Southeast Technical College' = ROR 'Southeast Tech'; same domain southeasttech.edu (reviewed by hand)
+0428azw09,137777,Name variant of the same school: IPEDS 'Talmudic College of Florida' = ROR 'Talmudic University'; same domain talmudicu.edu (reviewed by hand)
+025wqj346,125037,Name variant of the same school: IPEDS 'The Colleges of Law at Ventura' = ROR 'Santa Barbara and Ventura Colleges of Law'; same domain collegesoflaw.edu (reviewed by hand)
+00te84g16,216551,Name variant of the same school: IPEDS 'Valley Forge Military College' = ROR 'Valley Forge Military Academy and College'; same domain vfmac.edu (reviewed by hand)
