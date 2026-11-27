@@ -81,16 +81,12 @@ class InstitutionMatcher:
             return Institution.from_dict(match)
 
     def lookup(self, key: str | None):
+        if is_shared_host(key):
+            return None
         if key and (idx := self.lookup_table.get(key)) is not None:
             if 0 <= idx < len(self.institutions):
                 return self.institutions[idx]
         return None
-
-    def lookup_url(self, key: str | None):
-        """Look up a normalized URL key, ignoring shared hosts."""
-        if is_shared_host(key):
-            return None
-        return self.lookup(key)
 
     def match(
         self,
@@ -104,7 +100,8 @@ class InstitutionMatcher:
         unitid: int | None = None,
     ):
         # Before repair_url, which drops Google Sites URLs
-        site_keys = (google_site_key(url), google_site_key(source_url))
+        site_key = google_site_key(url)
+        source_site_key = google_site_key(source_url)
         url = repair_url(url)
         source_url = repair_url(source_url)
         school_name = normalize_school_name(school_name)
@@ -118,24 +115,25 @@ class InstitutionMatcher:
             return match
         if unitid is not None and (match := self.lookup(str(unitid))):
             return match
-        for site_key in site_keys:
-            if match := self.lookup_url(site_key):
-                return match
-        if match := self.lookup_url(get_full_url(url)):
+        if match := self.lookup(site_key):
             return match
-        if match := self.lookup_url(get_full_url(source_url)):
+        if match := self.lookup(source_site_key):
             return match
-        if match := self.lookup_url(get_domain_url(url)):
+        if match := self.lookup(get_full_url(url)):
             return match
-        if match := self.lookup_url(get_domain_url(source_url)):
+        if match := self.lookup(get_full_url(source_url)):
+            return match
+        if match := self.lookup(get_domain_url(url)):
+            return match
+        if match := self.lookup(get_domain_url(source_url)):
             return match
         if match := self.lookup(school_name):
             return match
-        if match := self.lookup_url(get_base_domain_url(url)):
+        if match := self.lookup(get_base_domain_url(url)):
             return match
-        if match := self.lookup_url(get_base_domain_url(source_url)):
+        if match := self.lookup(get_base_domain_url(source_url)):
             return match
-        if match := self.lookup_url(get_email_domain_url(email)):
+        if match := self.lookup(get_email_domain_url(email)):
             return match
-        if match := self.lookup_url(get_email_base_domain_url(email)):
+        if match := self.lookup(get_email_base_domain_url(email)):
             return match

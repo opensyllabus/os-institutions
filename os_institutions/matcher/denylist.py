@@ -19,47 +19,26 @@ that: it keeps only the first path segment, so every `view/<name>` becomes
 
 import re
 
+import pandas as pd
+
+from os_institutions.paths import DATA_DIR
+
+DENYLIST_DIR = DATA_DIR / 'denylists'
+
+def _read_hosts(name: str) -> frozenset[str]:
+    return frozenset(pd.read_csv(DENYLIST_DIR / name)['host'])
+
+
 # A key is denied when its host is one of these or a subdomain of one
 # (`m.facebook.com`, `docs.google.com`), with any path. No page on these
 # hosts says which institution it belongs to. The one exception is a single
 # Google Site, see `google_site_key`.
-SHARED_HOSTS = frozenset(
-    {
-        # Social media and media sharing
-        'facebook.com',
-        'instagram.com',
-        'linkedin.com',
-        'pinterest.com',
-        'tiktok.com',
-        'twitter.com',
-        'x.com',
-        'youtube.com',
-        'youtu.be',
-        'flickr.com',
-        'vimeo.com',
-        # Encyclopedias and registries
-        'wikipedia.org',
-        'wikidata.org',
-        # Link shorteners and link pages
-        'bit.ly',
-        'goo.gl',
-        'tinyurl.com',
-        'linktr.ee',
-        # Generic hosting: Google Docs/Drive/Forms/Sites, the Wayback Machine
-        'google.com',
-        'archive.org',
-    }
-)
+SHARED_HOSTS = _read_hosts('shared_hosts.csv')
 
 # A key is denied only when it is exactly one of these (the bare host, no
 # path). The host serves many institutions at `host/<tenant>`, so the bare
 # key is shared but the tenant keys still point at one institution.
-SHARED_ROOTS = frozenset(
-    {
-        'curricunet.com',
-        'curriqunet.com',
-    }
-)
+SHARED_ROOTS = _read_hosts('shared_roots.csv')
 
 
 GOOGLE_SITES = 'sites.google.com'
