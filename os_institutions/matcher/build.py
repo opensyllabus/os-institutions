@@ -8,11 +8,16 @@ import pandas as pd
 import typer
 from loguru import logger
 from os_normalizer.institution import normalize_school_name
-from os_normalizer.uri import get_domain_url, get_full_url
+from os_normalizer.uri import (
+    get_domain_url,
+    get_full_url,
+    repair_google_sites_url,
+)
 from tqdm import tqdm
 
 from os_institutions import loader, runs
 from os_institutions.matcher import format
+from os_institutions.matcher.denylist import google_site_key, is_shared_host
 from os_institutions.paths import artifact_path
 
 STAGE = "matcher"
@@ -29,11 +34,23 @@ def read(path: Path | None = None):
     return format.load(path)
 
 
+def repair_site_url(url):
+    """`sites.google.com/a/<domain>/x` is a site of `<domain>`, as the
+    matcher reads it at query time (`repair_url`)."""
+    if url and 'sites.google.com/a/' in url.lower():
+        return repair_google_sites_url(url.lower())
+    return url
+
+
 def normalize_urls(urls):
+    urls = list(urls)
+    site_urls = map(google_site_key, urls)
+    urls = [repair_site_url(url) for url in urls]
     full_urls = map(get_full_url, urls)
     domain_urls = map(get_domain_url, urls)
-    urls = filter(not_none, chain(full_urls, domain_urls))
-    return list(urls)
+    urls = filter(not_none, chain(site_urls, full_urls, domain_urls))
+    # Keys on shared hosts (facebook.com, ...) would match every page there
+    return [url for url in urls if not is_shared_host(url)]
 
 
 def normalize_names(names):
