@@ -289,13 +289,14 @@ Rows that are dropped from the dataset at build time are documented in
 ### URL keys
 
 Each institution URL is registered under its bare domain and, for URLs with
-a path, its full normalized path (`dal.ca/faculty/engineering/cift`; extension
-and index pages dropped). A first-segment key (`ualberta.ca/augustana`) is
-added only for a one-segment URL, or a deep URL whose first segment names the
-institution, when the segment is not generic (`en`, `faculty`, `sites`, ...)
-and no other institution claims it. At lookup the longest registered path
-prefix wins, then the bare domain, which belongs to the institution whose URL
-is that domain. See
+a path, its full normalized path (`purdue.edu/campuses/indianapolis`;
+extension and index pages dropped), never a shorter prefix of it. The bare
+domain belongs to the institution whose URL is that domain, else the most
+common claimant. At lookup the longest registered path prefix wins, and a link
+under no registered path falls through to the domain, so `www.dal.ca/faculty/x`
+is Dalhousie. This relies on the [blacklists](#blacklists) dropping
+departments, centres and labs (`units.csv`): a path on a domain then means a
+different school or campus, never a unit of the domain's owner. See
 [`matcher/url_keys.py`](./os_institutions/matcher/url_keys.py).
 
 ### Build and validate flow
