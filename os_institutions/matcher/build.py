@@ -1,6 +1,5 @@
 from collections import Counter
 from functools import partial
-from itertools import chain
 from operator import is_not
 from pathlib import Path
 
@@ -8,15 +7,11 @@ import pandas as pd
 import typer
 from loguru import logger
 from os_normalizer.institution import normalize_school_name
-from os_normalizer.uri import (
-    get_domain_url,
-    get_full_url,
-    repair_google_sites_url,
-)
+from os_normalizer.uri import repair_google_sites_url
 from tqdm import tqdm
 
 from os_institutions import loader, runs
-from os_institutions.matcher import format
+from os_institutions.matcher import format, url_keys
 from os_institutions.matcher.denylist import google_site_key, is_shared_host
 from os_institutions.paths import artifact_path
 
@@ -42,17 +37,6 @@ def repair_site_url(url):
     return url
 
 
-def normalize_urls(urls):
-    urls = list(urls)
-    site_urls = map(google_site_key, urls)
-    urls = [repair_site_url(url) for url in urls]
-    full_urls = map(get_full_url, urls)
-    domain_urls = map(get_domain_url, urls)
-    urls = filter(not_none, chain(site_urls, full_urls, domain_urls))
-    # Keys on shared hosts (facebook.com, ...) would match every page there
-    return [url for url in urls if not is_shared_host(url)]
-
-
 def normalize_names(names):
     names = map(normalize_school_name, names)
     names = filter(not_empty, names)
@@ -68,23 +52,39 @@ def mode(xs):
             return counts[0][0]
 
 
+def as_list(values):
+    """A parquet list column holds numpy arrays, and missing values."""
+    if values is None or values is pd.NA:
+        return []
+    return list(values)
+
+
 def build_url_references(df):
-    """Build canonical URL references for institutions."""
-    tqdm.pandas(desc="Normalize URLs")
-    refs = df.urls.progress_apply(normalize_urls)
+    """Build canonical URL references for institutions.
 
-    # Explode and groupby ie) url: [idx, idx, idx]
-    refs = (
-        refs.explode()
-        .reset_index()
-        .groupby(by="urls")
-        .agg({"index": list})
-        .reset_index()
-    ).rename(columns={"index": "idxs", "urls": "ref"})
-
-    tqdm.pandas(desc="Modal URL index")
-    refs["idx"] = refs["idxs"].progress_apply(mode).astype("Int64")
-    refs = refs[["idx", "ref"]]
+    Domain and path keys are derived in `url_keys`.
+    """
+    rows = (
+        (
+            idx,
+            [
+                repair_site_url(u)
+                for u in as_list(urls)
+                if isinstance(u, str) and u
+            ],
+        )
+        for idx, urls in zip(df.index, df["urls"])
+    )
+    table = url_keys.build_url_key_table(rows)
+    # Keys on shared hosts (facebook.com, ...) would match every page there
+    table = {k: i for k, i in table.items() if not is_shared_host(k)}
+    # One Google Site is one owner's, see `google_site_key`
+    for idx, urls in zip(df.index, df["urls"]):
+        for url in as_list(urls):
+            if key := google_site_key(url):
+                table.setdefault(key, idx)
+    refs = pd.DataFrame({"idx": list(table.values()), "ref": list(table)})
+    refs["idx"] = refs["idx"].astype("Int64")
 
     return refs
 

@@ -286,6 +286,19 @@ Rows that are dropped from the dataset at build time are documented in
 
 ## Institution matcher
 
+### URL keys
+
+Each institution URL is registered under its bare domain and, for URLs with
+a path, its full normalized path (`purdue.edu/campuses/indianapolis`;
+extension and index pages dropped), never a shorter prefix of it. The bare
+domain belongs to the institution whose URL is that domain, else the most
+common claimant. At lookup the longest registered path prefix wins, and a link
+under no registered path falls through to the domain, so `www.dal.ca/faculty/x`
+is Dalhousie. This relies on the [blacklists](#blacklists) dropping
+departments, centres and labs (`units.csv`): a path on a domain then means a
+different school or campus, never a unit of the domain's owner. See
+[`matcher/url_keys.py`](./os_institutions/matcher/url_keys.py).
+
 ### Build and validate flow
 
 1. Build a new matcher table from the latest institution dataset. This is the
