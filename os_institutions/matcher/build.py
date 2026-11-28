@@ -52,38 +52,37 @@ def mode(xs):
             return counts[0][0]
 
 
+def as_list(values):
+    """A parquet list column holds numpy arrays, and missing values."""
+    if values is None or values is pd.NA:
+        return []
+    return list(values)
+
+
 def build_url_references(df):
     """Build canonical URL references for institutions.
 
-    Domain and path keys are derived in `url_keys` (full normalized paths,
-    with first-segment keys only where they identify the institution).
+    Domain and path keys are derived in `url_keys`.
     """
-    names = df["names"] if "names" in df else df["name"]
     rows = (
         (
             idx,
             [
-                n
-                for n in [name, *(ns if isinstance(ns, (list, tuple)) else [])]
-                if isinstance(n, str) and n
-            ],
-            [
                 repair_site_url(u)
-                for u in (urls if isinstance(urls, (list, tuple)) else [])
+                for u in as_list(urls)
                 if isinstance(u, str) and u
             ],
         )
-        for idx, name, ns, urls in zip(df.index, df["name"], names, df["urls"])
+        for idx, urls in zip(df.index, df["urls"])
     )
     table = url_keys.build_url_key_table(rows)
     # Keys on shared hosts (facebook.com, ...) would match every page there
     table = {k: i for k, i in table.items() if not is_shared_host(k)}
     # One Google Site is one owner's, see `google_site_key`
     for idx, urls in zip(df.index, df["urls"]):
-        if isinstance(urls, (list, tuple)):
-            for url in urls:
-                if key := google_site_key(url):
-                    table.setdefault(key, idx)
+        for url in as_list(urls):
+            if key := google_site_key(url):
+                table.setdefault(key, idx)
     refs = pd.DataFrame({"idx": list(table.values()), "ref": list(table)})
     refs["idx"] = refs["idx"].astype("Int64")
 

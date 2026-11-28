@@ -1,6 +1,7 @@
+import pandas as pd
 import pytest
 
-from os_institutions.matcher.build import build_table, normalize_urls
+from os_institutions.matcher.build import build_table, build_url_references
 from os_institutions.matcher.denylist import google_site_key, is_shared_host
 from os_institutions.matcher.matcher import InstitutionMatcher
 
@@ -65,15 +66,19 @@ def test_not_shared_host(key):
     assert not is_shared_host(key)
 
 
-def test_normalize_urls_drops_shared_hosts():
-    urls = normalize_urls(
-        [
-            'https://www.linkedin.com/redir/redirect?url=http%3A%2F%2Fwww.nuga.com.ng',
-            'https://www.nuga.com.ng/',
-        ]
+def test_url_references_drop_shared_hosts():
+    df = pd.DataFrame(
+        {
+            'urls': [
+                [
+                    'https://www.linkedin.com/redir/redirect?url=http%3A%2F%2Fwww.nuga.com.ng',
+                    'https://www.nuga.com.ng/',
+                ]
+            ]
+        }
     )
 
-    assert urls == ['nuga.com.ng', 'nuga.com.ng']
+    assert list(build_url_references(df)['ref']) == ['nuga.com.ng']
 
 
 def _matcher(rows):

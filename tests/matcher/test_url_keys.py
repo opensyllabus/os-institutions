@@ -5,7 +5,6 @@ from os_institutions.matcher import build
 from os_institutions.matcher.matcher import InstitutionMatcher
 from os_institutions.matcher.url_keys import (
     build_url_key_table,
-    is_generic,
     path_prefix_keys,
     path_segments,
 )
@@ -84,12 +83,17 @@ def test_dalhousie_units_resolve_to_units(dal):
     )
 
 
-def test_generic_first_segment_key_not_registered(dal):
+def test_only_full_paths_registered(dal):
     lookup = dal[1]
-    for key in ('dal.ca/faculty', 'dal.ca/dept', 'dal.ca/study'):
+    for key in (
+        'dal.ca/faculty',
+        'dal.ca/faculty/engineering',
+        'dal.ca/study',
+    ):
         assert key not in lookup
     assert 'dal.ca/faculty/engineering/cift' in lookup  # extension stripped
     assert 'dal.ca/faculty/law' in lookup
+    assert 'dal.ca/dept/medicine' in lookup
 
 
 def test_bare_domain_owner_is_institution_with_bare_url():
@@ -166,14 +170,12 @@ def test_multi_campus_single_segment_keys_kept():
     )
 
 
-def test_generic_single_segment_not_registered_and_ualberta():
+def test_deep_url_does_not_register_first_segment():
     m, lookup = make(
         ('University of Alberta', ['https://www.ualberta.ca']),
         ('Steadward Centre', ['https://www.ualberta.ca/en/steadward-centre']),
-        ('Campus X', ['https://other.edu/campus']),
     )
     assert 'ualberta.ca/en' not in lookup
-    assert 'other.edu/campus' not in lookup
     assert 'ualberta.ca/en/steadward-centre' in lookup
     assert (
         name(m, url='https://www.ualberta.ca/en/arts/programs')
@@ -185,48 +187,93 @@ def test_generic_single_segment_not_registered_and_ualberta():
     )
 
 
-def test_shared_first_segment_dropped():
+def test_single_segment_shared_by_two_goes_to_mode():
     _, lookup = make(
         ('One', ['https://x.edu/school']),
-        ('Two', ['https://x.edu/school']),
+        ('Two', ['https://x.edu/school', 'https://x.edu/school/']),
         ('Owner', ['https://x.edu']),
     )
-    # same institution claims are fine, two institutions are ambiguous
-    assert 'x.edu/school' not in lookup
+    assert lookup['x.edu/school'] == 1
 
 
-def test_deep_url_first_segment_needs_name_tie():
-    _, lookup = make(
-        ('Biology Institute', ['https://x.edu/biology/institute']),
-        ('Some Lab', ['https://x.edu/zzz/lab']),
-        ('X University', ['https://x.edu']),
+def test_macdonald_campus_under_mcgill():
+    m, _ = make(
+        ('McGill University', ['https://www.mcgill.ca/']),
+        (
+            'Collège MacDonald',
+            [
+                'http://www.mcgill.ca/macdonald/',
+                'https://www.mcgill.ca/macdonald/macdonald-campus',
+            ],
+        ),
+        ('Air and Space Law', ['https://www.mcgill.ca/iasl/']),
     )
-    assert 'x.edu/biology' in lookup  # in the institution's name
-    assert 'x.edu/zzz' not in lookup
-    assert 'x.edu/zzz/lab' in lookup
-
-
-def test_deep_url_owner_name_in_name():
-    _, lookup = make(
-        ('Alberta Augustana', ['https://x.ca/augustana/home/about']),
-        ('Alberta', ['https://x.ca']),
+    assert (
+        name(m, url='https://www.mcgill.ca/macdonald/students')
+        == 'Collège MacDonald'
     )
-    assert 'x.ca/augustana' in lookup
+    assert name(m, url='https://www.mcgill.ca/study/x') == 'McGill University'
+
+
+def test_campus_deep_path_and_landing_page():
+    m, _ = make(
+        ('Purdue West Lafayette', ['https://www.purdue.edu/']),
+        (
+            'Purdue Indianapolis',
+            ['https://www.purdue.edu/campuses/indianapolis'],
+        ),
+        ('Johnson University', ['http://www.johnsonu.edu/Home.aspx']),
+        (
+            'Johnson University Florida',
+            ['https://www.johnsonu.edu/Florida/Home.aspx'],
+        ),
+        ('CvSU', ['https://cvsu.edu.ph']),
+        ('CvSU Silang', ['https://cvsu.edu.ph/silang-campus/']),
+    )
+    assert (
+        name(m, url='https://www.purdue.edu/campuses/indianapolis/x/y')
+        == 'Purdue Indianapolis'
+    )
+    assert (
+        name(m, url='https://www.purdue.edu/campuses/other')
+        == 'Purdue West Lafayette'
+    )
+    assert (
+        name(m, url='https://www.johnsonu.edu/florida/academics')
+        == 'Johnson University Florida'
+    )
+    assert name(m, url='https://www.johnsonu.edu/x') == 'Johnson University'
+    assert (
+        name(m, url='https://cvsu.edu.ph/silang-campus/admissions')
+        == 'CvSU Silang'
+    )
+
+
+def test_deep_path_under_excluded_prefix_is_kept():
+    # `/content` alone says nothing, but `/content/71` is a campus of its own
+    # (CPSU); only the bare excluded prefix is dropped.
+    m, table = make(
+        ('CPSU', ['https://www.cpsu.edu.ph/']),
+        ('CPSU Hinoba-an', ['https://www.cpsu.edu.ph/content/71']),
+        ('CPSU Other', ['https://www.cpsu.edu.ph/content']),
+    )
+    assert 'cpsu.edu.ph/content/71' in table
+    assert 'cpsu.edu.ph/content' not in table
+    assert (
+        name(m, url='https://www.cpsu.edu.ph/content/71/news')
+        == 'CPSU Hinoba-an'
+    )
+    assert name(m, url='https://www.cpsu.edu.ph/content/9') == 'CPSU'
 
 
 def test_path_segments_normalization():
     assert path_segments('https://x.edu/A/B/index.html') == ['a', 'b']
     assert path_segments('https://x.edu/a/b.PHP') == ['a', 'b']
     assert path_segments('https://x.edu/a/default.aspx') == ['a']
+    assert path_segments('https://x.edu/a/Home.aspx') == ['a']
+    assert path_segments('https://x.edu/home') == ['home']
     assert path_segments('https://x.edu/') == []
     assert path_segments(None) == []
-
-
-def test_is_generic():
-    for seg in ('en', 'faculty', 'fr-ca', 'ab', 'index.php', 'sites'):
-        assert is_generic(seg)
-    for seg in ('anschutz', 'nizwa', 'canyons'):
-        assert not is_generic(seg)
 
 
 def test_path_prefix_keys_longest_first():
@@ -241,7 +288,7 @@ def test_path_prefix_keys_longest_first():
 
 def test_table_function_directly():
     table = build_url_key_table(
-        [(0, ['U'], ['https://u.edu/a/b']), (1, ['V'], ['https://u.edu'])]
+        [(0, ['https://u.edu/a/b']), (1, ['https://u.edu'])]
     )
     assert table['u.edu'] == 1
     assert table['u.edu/a/b'] == 0
